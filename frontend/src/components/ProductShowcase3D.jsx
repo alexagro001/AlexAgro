@@ -6,82 +6,60 @@ import { normalizeLink } from "../utils/links";
 import { playClickSound } from "../utils/sound";
 import { localizeProduct } from "../utils/localizeProduct";
 
-/**
- * Real product packet photos slowly circling a horizontal oval track,
- * like fish in a tank — they travel across the front, curve around at
- * each end, and come back around behind, in one continuous serial loop
- * with every admin-added product included (no cap, no gaps). Position
- * is computed explicitly every frame with plain ellipse math rather
- * than relying on a CSS feature, so the motion is guaranteed to render
- * the same way everywhere. Click any packet to see it expanded with its
- * full description (image left, text right, both large).
- */
+// Pixels per second - slow, steady, one direction, never fast.
+const SPEED = 45;
+
 export default function ProductShowcase3D({ products }) {
   const [expanded, setExpanded] = useState(null);
   const { t, lang } = useLanguage();
   const localizedProducts = products.map((p) => localizeProduct(p, lang));
 
-  const containerRef = useRef(null);
-  const itemRefs = useRef([]);
-  const rafRef = useRef(null);
-  const sizeRef = useRef({ w: 900, h: 460 });
-
-  const count = localizedProducts.length;
-  // One full lap of the tank takes longer the more products there are,
-  // floored at a slow minimum so it's never rushed even with just one
-  // or two products, and capped so a huge catalog doesn't take forever.
-  const lapSeconds = Math.min(Math.max(count * 5, 26), 70);
+  const wrapRef = useRef(null);
+  const trackRef = useRef(null);
 
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container || count === 0) return undefined;
+    const track = trackRef.current;
+    const wrap = wrapRef.current;
+    if (!track || !wrap || localizedProducts.length === 0) return undefined;
 
-    const ro = new ResizeObserver((entries) => {
-      const entry = entries[0];
-      if (entry) sizeRef.current = { w: entry.contentRect.width, h: entry.contentRect.height };
-    });
-    ro.observe(container);
-    sizeRef.current = { w: container.clientWidth, h: container.clientHeight };
-
-    const start = performance.now();
+    let x = 0;
+    let paused = false;
+    let lastTime = performance.now();
+    let rafId;
 
     function frame(now) {
-      const elapsed = (now - start) / 1000;
-      const { w, h } = sizeRef.current;
-      const centerX = w / 2;
-      const centerY = h / 2;
-      const radiusX = w * 0.43;
-      const radiusY = h * 0.36;
-      const angularSpeed = (Math.PI * 2) / lapSeconds;
+      const dt = (now - lastTime) / 1000;
+      lastTime = now;
 
-      itemRefs.current.forEach((el, i) => {
-        if (!el) return;
-        const phase = (i / count) * Math.PI * 2;
-        const angle = phase + elapsed * angularSpeed;
-        const x = centerX + radiusX * Math.cos(angle);
-        const y = centerY + radiusY * Math.sin(angle);
-        // Items on the "far" side of the loop (behind, going away from
-        // the viewer) sit slightly smaller and further back visually,
-        // like fish further back in a tank - a simple depth cue.
-        const depth = (Math.sin(angle) + 1) / 2; // 0 = front/near, 1 = back/far
-        const scale = 1 - depth * 0.28;
-        const z = Math.round(100 - depth * 90);
-        el.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%) scale(${scale})`;
-        el.style.zIndex = z;
-      });
+      if (!paused) {
+        x -= SPEED * dt;
+        const halfWidth = track.scrollWidth / 2;
+        if (halfWidth > 0 && x <= -halfWidth) {
+          x += halfWidth;
+        }
+        track.style.transform = `translateX(${x}px)`;
+      }
 
-      rafRef.current = requestAnimationFrame(frame);
+      rafId = requestAnimationFrame(frame);
     }
 
-    rafRef.current = requestAnimationFrame(frame);
+    rafId = requestAnimationFrame(frame);
+
+    const onEnter = () => { paused = true; };
+    const onLeave = () => { paused = false; lastTime = performance.now(); };
+    wrap.addEventListener("mouseenter", onEnter);
+    wrap.addEventListener("mouseleave", onLeave);
+
     return () => {
-      cancelAnimationFrame(rafRef.current);
-      ro.disconnect();
+      cancelAnimationFrame(rafId);
+      wrap.removeEventListener("mouseenter", onEnter);
+      wrap.removeEventListener("mouseleave", onLeave);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [count, lapSeconds]);
+  }, [localizedProducts.length]);
 
   if (products.length === 0) return null;
+
+  const trackItems = [...localizedProducts, ...localizedProducts];
 
   return (
     <section className="product-showcase">
@@ -93,30 +71,29 @@ export default function ProductShowcase3D({ products }) {
         </p>
       </div>
 
-      <div className="product-orbit" ref={containerRef}>
-        {localizedProducts.map((p, i) => (
-          <button
-            key={p._id}
-            type="button"
-            ref={(el) => (itemRefs.current[i] = el)}
-            className="product-orbit__item"
-            onClick={() => {
-              playClickSound();
-              setExpanded(p);
-            }}
-          >
-            <span className="product-orbit__inner">
-              <span className="product-orbit__frame">
+      <div className="product-marquee" ref={wrapRef}>
+        <div className="product-marquee__track" ref={trackRef}>
+          {trackItems.map((p, i) => (
+            <button
+              key={`${p._id}-${i}`}
+              type="button"
+              className="product-marquee__item"
+              onClick={() => {
+                playClickSound();
+                setExpanded(p);
+              }}
+            >
+              <span className="product-marquee__frame">
                 {p.image ? (
                   <img src={p.image} alt={p.name} draggable={false} />
                 ) : (
-                  <span className="product-orbit__fallback">{p.name}</span>
+                  <span className="product-marquee__fallback">{p.name}</span>
                 )}
               </span>
-              <span className="product-orbit__name">{p.name}</span>
-            </span>
-          </button>
-        ))}
+              <span className="product-marquee__name">{p.name}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="product-showcase__cta">

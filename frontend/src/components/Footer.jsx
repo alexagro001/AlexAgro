@@ -49,7 +49,7 @@ export default function Footer() {
         <div className="footer__contact-card">
           <h4>{t("Contact Info")}</h4>
           <ul>
-            <li style={{ color: "rgba(246,241,228,0.9)", fontWeight: 700 }}>{site.address}</li>
+            <li><span style={{ color: "rgba(246,241,228,0.9)", fontWeight: 700 }}>{site.address}</span></li>
             <li><a href={`tel:${site.phone.replace(/\s/g, "")}`} style={{ fontWeight: 700 }}>{site.phone}</a></li>
             <li><a href={gmailComposeLink(site.email)} target="_blank" rel="noreferrer" style={{ fontWeight: 700 }}>{site.email}</a></li>
           </ul>
