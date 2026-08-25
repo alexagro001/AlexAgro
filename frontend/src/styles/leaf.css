@@ -1,0 +1,105 @@
+/* ---------------------------------------------------------------
+   Leaf buttons — the signature interactive element. Shaped like a
+   single leaf (one square corner rounded to a point, no seams across
+   it), with a small leaf glyph riding beside the label, and a slow
+   perpetual sway as if stirred by wind. Used sparingly: primary
+   calls-to-action only.
+   ----------------------------------------------------------------*/
+@keyframes leaf-sway {
+  0%, 100% { transform: rotate(-1.5deg) translateY(0); }
+  50% { transform: rotate(1.5deg) translateY(-1px); }
+}
+
+.leaf-btn {
+  --leaf-bg: #fff;
+  --leaf-fg: var(--canopy-green-dark);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 26px 12px 20px;
+  border: 2px solid var(--canopy-green);
+  background: var(--leaf-bg);
+  color: var(--leaf-fg);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.95rem;
+  border-radius: 2px 22px 2px 22px;
+  box-shadow: 0 8px 20px rgba(31, 92, 61, 0.16);
+  transform-origin: 15% 85%;
+  animation: leaf-sway 4.5s ease-in-out infinite;
+  transition: box-shadow 0.22s ease, background 0.22s ease, color 0.22s ease;
+}
+
+.leaf-btn__icon {
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+.leaf-btn:hover {
+  --leaf-bg: var(--canopy-green);
+  --leaf-fg: #fff;
+  box-shadow: 0 12px 26px rgba(31, 92, 61, 0.38);
+  animation-play-state: paused;
+}
+
+.leaf-btn:active {
+  transform: scale(0.97);
+}
+
+.leaf-btn--amber {
+  --leaf-bg: var(--harvest-amber);
+  --leaf-fg: var(--ink-soil);
+  border-color: var(--harvest-amber);
+  box-shadow: 0 8px 20px rgba(226, 163, 53, 0.32);
+}
+
+.leaf-btn--amber:hover {
+  --leaf-bg: #fff;
+  --leaf-fg: var(--ink-soil);
+}
+
+.leaf-btn--outline {
+  --leaf-bg: #fff;
+  --leaf-fg: var(--canopy-green-dark);
+  border: 2px solid var(--canopy-green);
+  box-shadow: 0 4px 12px rgba(31, 92, 61, 0.12);
+  padding: 11px 24px 11px 18px;
+  transition: background 0.22s ease, color 0.22s ease, box-shadow 0.2s ease;
+}
+
+.leaf-btn--outline:hover {
+  --leaf-bg: var(--canopy-green);
+  --leaf-fg: #fff;
+  box-shadow: 0 10px 22px rgba(31, 92, 61, 0.3);
+}
+
+.leaf-btn--outline-dark {
+  --leaf-bg: #fff;
+  --leaf-fg: var(--canopy-green-dark);
+  border-color: var(--sprout-lime);
+}
+
+.leaf-btn--outline-dark:hover {
+  --leaf-bg: var(--canopy-green);
+  --leaf-fg: #fff;
+}
+
+.leaf-btn--sm {
+  padding: 8px 18px 8px 14px;
+  font-size: 0.82rem;
+}
+
+.leaf-btn[disabled] {
+  opacity: 0.55;
+  animation: none;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+@media (max-width: 480px) {
+  @keyframes leaf-sway {
+    0%, 100% { transform: rotate(-0.8deg); }
+    50% { transform: rotate(0.8deg); }
+  }
+}
