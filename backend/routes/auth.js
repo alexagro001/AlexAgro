@@ -61,20 +61,39 @@ router.get("/me", requireAuth, async (req, res) => {
 router.put("/change-password", requireAuth, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: "Current and new password are both required" });
+    }
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: "New password must be at least 6 characters" });
+    }
+
     const admin = await Admin.findById(req.admin._id).select("+password");
+    if (!admin) {
+      return res.status(404).json({ message: "Admin account not found" });
+    }
 
     const isMatch = await admin.comparePassword(currentPassword);
     if (!isMatch) {
       return res.status(400).json({ message: "Current password is incorrect" });
     }
 
-    if (!newPassword || newPassword.length < 6) {
-      return res.status(400).json({ message: "New password must be at least 6 characters" });
-    }
-
     admin.password = newPassword;
     await admin.save();
-    res.json({ message: "Password updated successfully" });
+
+    // Re-fetch and confirm the hash actually changed, so a silent failure
+    // here is impossible - either we can prove it worked, or we return a
+    // clear error instead of a false "success".
+    const confirmAdmin = await Admin.findById(admin._id).select("+password");
+    const stillMatchesOld = await confirmAdmin.comparePassword(currentPassword);
+    if (stillMatchesOld) {
+      return res.status(500).json({
+        message: "Password save did not take effect. Please try again or contact support.",
+      });
+    }
+
+    res.json({ message: "Password updated successfully. Use your new password next time you log in." });
   } catch (err) {
     res.status(500).json({ message: "Could not update password", error: err.message });
   }
