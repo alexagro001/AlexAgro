@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, lazy, Suspense } from "react";
-import { animate, onScroll, stagger } from "animejs";
+import { animate, onScroll, stagger, splitText } from "animejs";
 import { Link, useNavigate } from "react-router-dom";
 import LeafButton from "../components/LeafButton";
 import LeafIcon from "../components/LeafIcon";
@@ -41,6 +41,7 @@ export default function Home() {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const wingsGridRef = useRef(null);
+  const taglineRef = useRef(null);
   const [districtCounts, setDistrictCounts] = useState({});
   const [products, setProducts] = useState([]);
   const [counts, setCounts] = useState({ dealers: 0, distributors: 0, divisions: 0 });
@@ -95,6 +96,23 @@ export default function Home() {
     return () => anim.pause?.();
   }, []);
 
+  useEffect(() => {
+    if (!taglineRef.current) return undefined;
+    const split = splitText(taglineRef.current, { words: { class: "split-word" } });
+    const anim = animate(split.words, {
+      opacity: [0, 1],
+      rotateY: [75, 0],
+      z: [-70, 0],
+      duration: 750,
+      delay: stagger(110),
+      easing: "easeOutQuad",
+    });
+    return () => {
+      anim.pause?.();
+      split.revert();
+    };
+  }, []);
+
   return (
     <div>
       <BannerSlider />
@@ -102,7 +120,7 @@ export default function Home() {
       <section className="hero">
         <div className="hero__inner">
           <div>
-            <div className="eyebrow hero__eyebrow">{t(site.tagline)}</div>
+            <div className="eyebrow hero__eyebrow" ref={taglineRef}>{t(site.tagline)}</div>
             <h1 className="hero__title">{t("Restoring organic life to global crop soils.")}</h1>
             <p className="hero__lede">
               {t(site.description)} {t("We deliver safe, science-backed crop-health inputs and agro-processing support through a nationwide network of dealers and sales officers.")}
