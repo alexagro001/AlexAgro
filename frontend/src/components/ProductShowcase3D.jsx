@@ -9,6 +9,15 @@ import { localizeProduct } from "../utils/localizeProduct";
 // Pixels per second - slow, steady, one direction, never fast.
 const SPEED = 45;
 
+/**
+ * Real product packet photos scrolling continuously in one direction,
+ * never stopping on their own (only pauses on hover) - once the set
+ * finishes passing, the same set loops in seamlessly behind it and
+ * keeps going, forever. Works the same no matter how many products
+ * admin adds. Click any packet to see it expanded with its full
+ * description (image left, text right, both large) - both the short
+ * tagline and the full description show, not just one or the other.
+ */
 export default function ProductShowcase3D({ products }) {
   const [expanded, setExpanded] = useState(null);
   const { t, lang } = useLanguage();
@@ -33,6 +42,10 @@ export default function ProductShowcase3D({ products }) {
 
       if (!paused) {
         x -= SPEED * dt;
+        // The track holds two back-to-back copies of the product list,
+        // so once we've scrolled past exactly one copy's width, snapping
+        // back by that same width puts us in a visually identical spot -
+        // the loop point is invisible and the motion never stops.
         const halfWidth = track.scrollWidth / 2;
         if (halfWidth > 0 && x <= -halfWidth) {
           x += halfWidth;
@@ -45,8 +58,13 @@ export default function ProductShowcase3D({ products }) {
 
     rafId = requestAnimationFrame(frame);
 
-    const onEnter = () => { paused = true; };
-    const onLeave = () => { paused = false; lastTime = performance.now(); };
+    const onEnter = () => {
+      paused = true;
+    };
+    const onLeave = () => {
+      paused = false;
+      lastTime = performance.now();
+    };
     wrap.addEventListener("mouseenter", onEnter);
     wrap.addEventListener("mouseleave", onLeave);
 
@@ -59,6 +77,7 @@ export default function ProductShowcase3D({ products }) {
 
   if (products.length === 0) return null;
 
+  // Two back-to-back copies so the wrap-around point is seamless.
   const trackItems = [...localizedProducts, ...localizedProducts];
 
   return (
@@ -106,7 +125,8 @@ export default function ProductShowcase3D({ products }) {
         <Lightbox
           image={expanded.image}
           title={expanded.name}
-          description={expanded.shortDescription || expanded.description}
+          tagline={expanded.shortDescription}
+          description={expanded.description}
           actionHref={expanded.detailsLink ? normalizeLink(expanded.detailsLink) : null}
           sideBySide
           onClose={() => setExpanded(null)}

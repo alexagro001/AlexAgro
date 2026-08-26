@@ -152,7 +152,8 @@ export default function ProductCarousel({ products, categoryLabel }) {
         <Lightbox
           image={expanded.image}
           title={expanded.name}
-          description={expanded.shortDescription || expanded.description}
+          tagline={expanded.shortDescription}
+          description={expanded.description}
           actionHref={expanded.detailsLink ? normalizeLink(expanded.detailsLink) : null}
           sideBySide
           onClose={() => setExpanded(null)}

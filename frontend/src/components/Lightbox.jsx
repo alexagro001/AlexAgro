@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useLanguage } from "../context/LanguageContext";
 
-export default function Lightbox({ image, title, description, actionHref, actionLabel, sideBySide, onClose }) {
+export default function Lightbox({ image, title, tagline, description, actionHref, actionLabel, sideBySide, onClose }) {
   const { t } = useLanguage();
 
   useEffect(() => {
@@ -31,6 +31,7 @@ export default function Lightbox({ image, title, description, actionHref, action
           </div>
           <div className="lightbox__split-text">
             {title && <h2 className="lightbox__split-title">{title}</h2>}
+            {tagline && <p className="lightbox__split-tagline">{tagline}</p>}
             {description && <p className="lightbox__split-desc">{description}</p>}
             {actionHref && (
               <a className="leaf-btn" href={actionHref} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>
@@ -54,6 +55,7 @@ export default function Lightbox({ image, title, description, actionHref, action
       <div className="lightbox__stage" onClick={(e) => e.stopPropagation()}>
         <img src={image} alt={title || ""} />
         {title && <div className="lightbox__caption">{title}</div>}
+        {tagline && <p className="lightbox__desc" style={{ fontWeight: 700 }}>{tagline}</p>}
         {description && <p className="lightbox__desc">{description}</p>}
         {actionHref && (
           <a className="leaf-btn leaf-btn--sm" href={actionHref} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>
