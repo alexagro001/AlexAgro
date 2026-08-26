@@ -99,13 +99,17 @@ export default function Home() {
   useEffect(() => {
     if (!taglineRef.current) return undefined;
     const split = splitText(taglineRef.current, { words: { class: "split-word" } });
+    // Loops forever (never stops on its own) so the animation is always
+    // visible whenever the page is looked at - a slow 3D wave rolling
+    // through the words, one after another.
     const anim = animate(split.words, {
-      opacity: [0, 1],
-      rotateY: [75, 0],
-      z: [-70, 0],
-      duration: 750,
-      delay: stagger(110),
-      easing: "easeOutQuad",
+      rotateY: [0, 34, 0],
+      z: [0, 42, 0],
+      translateY: [0, -8, 0],
+      duration: 2400,
+      delay: stagger(200),
+      loop: true,
+      easing: "easeInOutSine",
     });
     return () => {
       anim.pause?.();
