@@ -1198,14 +1198,21 @@
 
 .footer ul li {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
+}
+
+.footer ul li > * {
+  min-width: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .footer ul li::before {
   content: "";
   width: 7px;
   height: 7px;
+  margin-top: 7px;
   flex-shrink: 0;
   background: var(--sprout-lime);
   border-radius: 0 60% 0 60%;

@@ -30,21 +30,26 @@ async function sendContactEmail({ name, email, phone, subject, message }) {
 
   const receiver = process.env.CONTACT_RECEIVER_EMAIL || process.env.SMTP_USER;
 
-  await transporter.sendMail({
-    from: `"Website Contact Form" <${process.env.SMTP_USER}>`,
-    to: receiver,
-    replyTo: email,
-    subject: `New website inquiry: ${subject || "General inquiry"}`,
-    html: `
-      <h2>New contact form submission</h2>
-      <p><strong>Name:</strong> ${name}</p>
-      <p><strong>Email:</strong> ${email}</p>
-      <p><strong>Phone:</strong> ${phone || "-"}</p>
-      <p><strong>Subject:</strong> ${subject || "-"}</p>
-      <p><strong>Message:</strong></p>
-      <p>${String(message).replace(/\n/g, "<br/>")}</p>
-    `,
-  });
+  try {
+    await transporter.sendMail({
+      from: `"Website Contact Form" <${process.env.SMTP_USER}>`,
+      to: receiver,
+      replyTo: email,
+      subject: `New website inquiry: ${subject || "General inquiry"}`,
+      html: `
+        <h2>New contact form submission</h2>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Phone:</strong> ${phone || "-"}</p>
+        <p><strong>Subject:</strong> ${subject || "-"}</p>
+        <p><strong>Message:</strong></p>
+        <p>${String(message).replace(/\n/g, "<br/>")}</p>
+      `,
+    });
+  } catch (e) {
+    console.warn("Contact notification email failed:", e.message);
+    return { sent: false, reason: "send-failed" };
+  }
 
   // Best-effort confirmation to the person who submitted the form.
   try {
@@ -75,18 +80,23 @@ async function sendCareerApplicationEmail({ fullName, email, cvUrl }) {
 
   const receiver = process.env.CONTACT_RECEIVER_EMAIL || process.env.SMTP_USER;
 
-  await transporter.sendMail({
-    from: `"Website Career Application" <${process.env.SMTP_USER}>`,
-    to: receiver,
-    replyTo: email,
-    subject: `New CV submission: ${fullName}`,
-    html: `
-      <h2>New career application</h2>
-      <p><strong>Name:</strong> ${fullName}</p>
-      <p><strong>Email:</strong> ${email}</p>
-      <p><strong>CV:</strong> <a href="${cvUrl}">Download / View CV</a></p>
-    `,
-  });
+  try {
+    await transporter.sendMail({
+      from: `"Website Career Application" <${process.env.SMTP_USER}>`,
+      to: receiver,
+      replyTo: email,
+      subject: `New CV submission: ${fullName}`,
+      html: `
+        <h2>New career application</h2>
+        <p><strong>Name:</strong> ${fullName}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>CV:</strong> <a href="${cvUrl}">Download / View CV</a></p>
+      `,
+    });
+  } catch (e) {
+    console.warn("Career application notification email failed:", e.message);
+    return { sent: false, reason: "send-failed" };
+  }
 
   return { sent: true };
 }
