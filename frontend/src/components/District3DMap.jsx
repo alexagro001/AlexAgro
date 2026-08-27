@@ -74,12 +74,14 @@ function ringToShape(ring, center, scale) {
  * placed in via ResizeObserver, and cleans up all WebGL/DOM resources
  * on unmount.
  */
-export default function District3DMap({ height = 480, onDistrictSelect, counts = {} }) {
+export default function District3DMap({ height = 480, onDistrictSelect, counts = {}, highlightDistrict }) {
   const containerRef = useRef(null);
   const [status, setStatus] = useState("loading");
   const { t } = useLanguage();
   const countsRef = useRef(counts);
   countsRef.current = counts;
+  const highlightRef = useRef(highlightDistrict);
+  highlightRef.current = highlightDistrict;
 
   useEffect(() => {
     const container = containerRef.current;
@@ -299,6 +301,23 @@ export default function District3DMap({ height = 480, onDistrictSelect, counts =
         }
 
         mapGroup.rotation.x = -0.13;
+
+        // Pre-highlight a specific district (e.g. "this dealer's district")
+        // without requiring a click - same visual treatment as a click,
+        // and it becomes the "selected" one so later clicks/hovers behave
+        // correctly relative to it.
+        if (highlightRef.current) {
+          const target = highlightRef.current.trim().toLowerCase();
+          for (const group of districtGroups.values()) {
+            if (group.userData.name.toLowerCase() === target) {
+              selected = group;
+              setDistrictState(group, "selected");
+              setTarget(group, SELECTED_LIFT);
+              break;
+            }
+          }
+        }
+
         if (!destroyed) setStatus("ready");
       } catch (err) {
         console.error("Failed to load district map", err);

@@ -140,13 +140,18 @@ export default function NetworkDetailPage({ kind }) {
 
           <div>
             <p className="form-note" style={{ marginBottom: 10, textAlign: "center" }}>
-              {t("Located in")} <strong>{t(item.division)}</strong>
+              {t("Located in")}{" "}
+              <strong>
+                {item.district ? `${item.district}, ` : ""}
+                {t(item.division)}
+              </strong>
             </p>
             <LazyOnVisible minHeight={380}>
               <Suspense fallback={<div className="district3d-loading-fallback" style={{ height: 380 }} />}>
                 <District3DMap
                   height={380}
                   counts={districtCounts}
+                  highlightDistrict={item.district}
                   onDistrictSelect={({ division }) => navigate(`${cfg.listPath}?division=${encodeURIComponent(division)}`)}
                 />
               </Suspense>
