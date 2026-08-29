@@ -32,7 +32,11 @@ export default function Lightbox({ image, title, tagline, description, actionHre
           <div className="lightbox__split-text">
             {title && <h2 className="lightbox__split-title">{title}</h2>}
             {tagline && <p className="lightbox__split-tagline">{tagline}</p>}
-            {description && <p className="lightbox__split-desc">{description}</p>}
+            {description && (
+              <div className="lightbox__split-desc-scroll">
+                <p className="lightbox__split-desc">{description}</p>
+              </div>
+            )}
             {actionHref && (
               <a className="leaf-btn" href={actionHref} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>
                 {actionLabel || t("View Details")}
@@ -56,7 +60,11 @@ export default function Lightbox({ image, title, tagline, description, actionHre
         <img src={image} alt={title || ""} />
         {title && <div className="lightbox__caption">{title}</div>}
         {tagline && <p className="lightbox__desc" style={{ fontWeight: 700 }}>{tagline}</p>}
-        {description && <p className="lightbox__desc">{description}</p>}
+        {description && (
+          <div className="lightbox__desc-scroll">
+            <p className="lightbox__desc">{description}</p>
+          </div>
+        )}
         {actionHref && (
           <a className="leaf-btn leaf-btn--sm" href={actionHref} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>
             {actionLabel || t("View Details")}

@@ -1500,9 +1500,18 @@
 .lightbox__stage {
   max-width: min(90vw, 900px);
   max-height: 80vh;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   cursor: default;
   text-align: center;
+}
+
+.lightbox__desc-scroll {
+  overflow-y: auto;
+  min-height: 0;
+  flex: 0 1 auto;
+  width: 100%;
 }
 
 .lightbox__stage img {
@@ -1860,8 +1869,15 @@
   flex: 1 1 320px;
   max-width: 440px;
   max-height: 78vh;
-  overflow-y: auto;
   color: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.lightbox__split-desc-scroll {
+  overflow-y: auto;
+  min-height: 0;
+  flex: 1 1 auto;
 }
 
 .lightbox__split-title {
