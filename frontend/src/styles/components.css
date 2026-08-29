@@ -1500,18 +1500,9 @@
 .lightbox__stage {
   max-width: min(90vw, 900px);
   max-height: 80vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  overflow-y: auto;
   cursor: default;
   text-align: center;
-}
-
-.lightbox__desc-scroll {
-  overflow-y: auto;
-  min-height: 0;
-  flex: 0 1 auto;
-  width: 100%;
 }
 
 .lightbox__stage img {
