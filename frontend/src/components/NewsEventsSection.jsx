@@ -13,7 +13,7 @@ export default function NewsEventsSection() {
 
   useEffect(() => {
     api
-      .get("/gallery", { params: { type: "photo" } })
+      .get("/gallery")
       .then((res) => setItems(res.data))
       .catch((err) => console.error("Failed to load news & events", err));
   }, []);
@@ -57,13 +57,31 @@ export default function NewsEventsSection() {
                 <div
                   className="news-card__media gallery-thumb"
                   onClick={() => {
-                    if (item.url) {
+                    const hasDisplayableImage = item.type === "video" ? item.thumbnail : item.url;
+                    if (hasDisplayableImage) {
                       playClickSound();
                       setLightboxItem(item);
                     }
                   }}
                 >
-                  {item.url ? (
+                  {item.type === "video" ? (
+                    item.thumbnail ? (
+                      <>
+                        <img src={item.thumbnail} alt={item.title} />
+                        <span className="news-card__play">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M8 5v14l11-7z" />
+                          </svg>
+                        </span>
+                      </>
+                    ) : (
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                        <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" strokeWidth="1.5" />
+                        <circle cx="9" cy="10" r="1.6" fill="currentColor" />
+                        <path d="M3 17l5-5 4 4 3-3 6 6" stroke="currentColor" strokeWidth="1.5" />
+                      </svg>
+                    )
+                  ) : item.url ? (
                     <img src={item.url} alt={item.title} />
                   ) : (
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
@@ -97,7 +115,7 @@ export default function NewsEventsSection() {
 
       {lightboxItem && (
         <Lightbox
-          image={lightboxItem.url}
+          image={lightboxItem.type === "video" ? lightboxItem.thumbnail : lightboxItem.url}
           title={lightboxItem.title}
           description={lightboxItem.description}
           onClose={() => setLightboxItem(null)}
