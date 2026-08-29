@@ -152,6 +152,9 @@ export default function NetworkDetailPage({ kind }) {
                   height={380}
                   counts={districtCounts}
                   highlightDistrict={item.district}
+                  markerLat={item.lat}
+                  markerLng={item.lng}
+                  markerName={item.name}
                   onDistrictSelect={({ division }) => navigate(`${cfg.listPath}?division=${encodeURIComponent(division)}`)}
                 />
               </Suspense>

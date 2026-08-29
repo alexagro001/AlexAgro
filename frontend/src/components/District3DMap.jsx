@@ -74,7 +74,7 @@ function ringToShape(ring, center, scale) {
  * placed in via ResizeObserver, and cleans up all WebGL/DOM resources
  * on unmount.
  */
-export default function District3DMap({ height = 480, onDistrictSelect, counts = {}, highlightDistrict }) {
+export default function District3DMap({ height = 480, onDistrictSelect, counts = {}, highlightDistrict, markerLat, markerLng, markerName }) {
   const containerRef = useRef(null);
   const [status, setStatus] = useState("loading");
   const { t } = useLanguage();
@@ -82,6 +82,8 @@ export default function District3DMap({ height = 480, onDistrictSelect, counts =
   countsRef.current = counts;
   const highlightRef = useRef(highlightDistrict);
   highlightRef.current = highlightDistrict;
+  const markerRef = useRef({ lat: markerLat, lng: markerLng, name: markerName });
+  markerRef.current = { lat: markerLat, lng: markerLng, name: markerName };
 
   useEffect(() => {
     const container = containerRef.current;
@@ -246,6 +248,22 @@ export default function District3DMap({ height = 480, onDistrictSelect, counts =
       group.add(obj);
     }
 
+    function createDealerPin(parent, x, y, name) {
+      const el = document.createElement("div");
+      el.className = "district3d-dealer-pin";
+      el.innerHTML = `
+        <svg width="26" height="32" viewBox="0 0 26 32" fill="none" aria-hidden="true">
+          <path d="M13 31C13 31 25 19 25 12A12 12 0 101 12C1 19 13 31 13 31Z" fill="#E2A335" stroke="#fff" stroke-width="2"/>
+          <circle cx="13" cy="12" r="4.4" fill="#fff"/>
+        </svg>
+        <span class="district3d-dealer-pin__label">${name}</span>
+      `;
+      const obj = new CSS2DObject(el);
+      obj.position.set(x, y, EXTRUSION + 0.2);
+      parent.add(obj);
+      return obj;
+    }
+
     function setDistrictState(group, state) {
       const meshes = group.children.filter((x) => x.isMesh);
       for (const m of meshes) {
@@ -302,10 +320,16 @@ export default function District3DMap({ height = 480, onDistrictSelect, counts =
 
         mapGroup.rotation.x = -0.13;
 
-        // Pre-highlight a specific district (e.g. "this dealer's district")
-        // without requiring a click - same visual treatment as a click,
-        // and it becomes the "selected" one so later clicks/hovers behave
-        // correctly relative to it.
+        const marker = markerRef.current;
+        const hasMarker = typeof marker.lat === "number" && typeof marker.lng === "number";
+        let zoomTarget = null;
+
+        if (hasMarker) {
+          const p = project(marker.lng, marker.lat, center, scale);
+          zoomTarget = new THREE.Vector3(p.x, p.y, EXTRUSION);
+          createDealerPin(mapGroup, p.x, p.y, marker.name || "");
+        }
+
         if (highlightRef.current) {
           const target = highlightRef.current.trim().toLowerCase();
           for (const group of districtGroups.values()) {
@@ -313,9 +337,22 @@ export default function District3DMap({ height = 480, onDistrictSelect, counts =
               selected = group;
               setDistrictState(group, "selected");
               setTarget(group, SELECTED_LIFT);
+
+              if (!zoomTarget) {
+                const box = new THREE.Box3().setFromObject(group);
+                zoomTarget = box.getCenter(new THREE.Vector3());
+              }
               break;
             }
           }
+        }
+
+        if (zoomTarget) {
+          const zoomFactor = 0.45;
+          const camOffset = camera.position.clone().multiplyScalar(zoomFactor);
+          camera.position.copy(zoomTarget).add(camOffset);
+          controls.target.copy(zoomTarget);
+          controls.update();
         }
 
         if (!destroyed) setStatus("ready");
