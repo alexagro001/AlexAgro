@@ -1470,6 +1470,7 @@
   align-items: center;
   justify-content: center;
   padding: 70px 20px 30px;
+  overflow-y: auto;
   cursor: pointer;
 }
 
@@ -1499,6 +1500,7 @@
 .lightbox__stage {
   max-width: min(90vw, 900px);
   max-height: 80vh;
+  overflow-y: auto;
   cursor: default;
   text-align: center;
 }
@@ -1857,6 +1859,8 @@
 .lightbox__split-text {
   flex: 1 1 320px;
   max-width: 440px;
+  max-height: 78vh;
+  overflow-y: auto;
   color: #fff;
 }
 
