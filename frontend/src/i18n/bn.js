@@ -126,6 +126,8 @@ export const bn = {
     "বাংলাদেশের জন্য আরও নিরাপদ খাদ্য সরবরাহ গড়তে আমাদের সাহায্য করুন।",
   "Get in Touch": "যোগাযোগ করুন",
   "Every message here reaches our team's inbox directly.": "এখানকার প্রতিটি বার্তা সরাসরি আমাদের টিমের কাছে পৌঁছায়।",
+  "Open in Google Maps": "গুগল ম্যাপে দেখুন",
+  "Facebook Page": "ফেসবুক পেজ",
 
   // About page
   "Our story": "আমাদের গল্প",

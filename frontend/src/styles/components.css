@@ -1284,6 +1284,31 @@
   padding: 18px 20px;
 }
 
+.footer__contact-card ul li::before {
+  display: none;
+}
+
+.footer__contact-card ul li > a {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.footer__contact-icon {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  flex: 0 0 18px;
+  color: var(--sprout-lime);
+}
+
+.footer__contact-icon--facebook {
+  padding: 2px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: #d3f0c9;
+}
+
 .footer__bottom {
   border-top: 1px solid rgba(246, 241, 228, 0.12);
   text-align: center;
