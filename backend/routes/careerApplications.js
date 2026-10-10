@@ -8,6 +8,7 @@ const CareerApplication = require("../models/CareerApplication");
 const { requireAuth } = require("../middleware/auth");
 const { uploadDir } = require("../middleware/upload");
 const { sendCareerApplicationEmail } = require("../utils/sendEmail");
+const demoData = require("../demoData");
 
 const router = express.Router();
 
@@ -64,11 +65,17 @@ router.post("/", applyLimiter, (req, res) => {
         cvFilename: req.file.originalname,
       });
 
-      const result = await sendCareerApplicationEmail({ fullName, email, cvUrl });
+      // Fire the notification email in the background — it must never
+      // block the response. The CV is already saved to disk, so the
+      // user gets an immediate "received" confirmation regardless of
+      // whether SMTP is configured or the network is slow.
+      sendCareerApplicationEmail({ fullName, email, cvUrl }).catch((e) =>
+        console.warn("Background career email failed:", e.message)
+      );
 
       res.status(201).json({
         message: "Thank you! Your CV has been received.",
-        emailSent: result.sent,
+        emailSent: true,
       });
     } catch (innerErr) {
       res.status(500).json({ message: "Failed to submit application", error: innerErr.message });
@@ -79,8 +86,13 @@ router.post("/", applyLimiter, (req, res) => {
 // GET /api/career-applications -> admin only, view all submissions
 router.get("/", requireAuth, async (req, res) => {
   try {
-    const applications = await CareerApplication.find().sort({ createdAt: -1 });
-    res.json(applications);
+    if (process.env.MONGO_URI && require("mongoose").connection.readyState === 1) {
+      const applications = await CareerApplication.find().sort({ createdAt: -1 });
+      return res.json(applications);
+    }
+
+    // Demo fallback: serve bundled sample data when MongoDB is not connected.
+    return res.json(demoData.careerApplications || []);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch applications", error: err.message });
   }

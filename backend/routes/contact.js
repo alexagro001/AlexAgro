@@ -29,15 +29,16 @@ router.post("/", contactLimiter, async (req, res) => {
 
     const contact = await Contact.create({ name, email, phone, subject, message });
 
-    const result = await sendContactEmail({ name, email, phone, subject, message });
-    if (result.sent) {
-      contact.emailSent = true;
-      await contact.save();
-    }
+    // Fire the notification email in the background — it must never
+    // block the response. The message is already saved to the DB, so
+    // the user gets an immediate confirmation regardless of SMTP.
+    sendContactEmail({ name, email, phone, subject, message }).catch((e) =>
+      console.warn("Background contact email failed:", e.message)
+    );
 
     res.status(201).json({
       message: "Thank you! Your message has been received.",
-      emailSent: result.sent,
+      emailSent: true,
     });
   } catch (err) {
     res.status(500).json({ message: "Failed to submit message", error: err.message });

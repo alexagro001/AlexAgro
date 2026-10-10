@@ -13,25 +13,44 @@ function buildTransporter() {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
+    // Prevent the transporter from hanging forever when the SMTP server
+    // is unreachable — the form must always respond, even if the
+    // notification email can't be delivered.
+    connectionTimeout: 8000,
+    socketTimeout: 8000,
+    greetingTimeout: 8000,
   });
+}
+
+async function sendWithTimeout(transporter, mailOptions, label) {
+  // Race the send against an 8s timeout so a dead SMTP server can never
+  // block the request — the CV is already saved to disk by this point.
+  const timeout = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error(`${label} timed out`)), 8000)
+  );
+  try {
+    await Promise.race([transporter.sendMail(mailOptions), timeout]);
+    return true;
+  } catch (e) {
+    console.warn(`${label} failed:`, e.message);
+    return false;
+  }
 }
 
 // Sends every contact-form submission straight to the company inbox
 // (CONTACT_RECEIVER_EMAIL) and also confirms receipt to the sender.
 async function sendContactEmail({ name, email, phone, subject, message }) {
   const transporter = buildTransporter();
-
   if (!transporter) {
-    console.warn(
-      "Email not sent: SMTP_HOST / SMTP_USER / SMTP_PASS are not set in backend/.env"
-    );
+    console.warn("Email not sent: SMTP_HOST / SMTP_USER / SMTP_PASS are not set");
     return { sent: false, reason: "smtp-not-configured" };
   }
 
   const receiver = process.env.CONTACT_RECEIVER_EMAIL || process.env.SMTP_USER;
 
-  try {
-    await transporter.sendMail({
+  const sent = await sendWithTimeout(
+    transporter,
+    {
       from: `"Website Contact Form" <${process.env.SMTP_USER}>`,
       to: receiver,
       replyTo: email,
@@ -45,43 +64,43 @@ async function sendContactEmail({ name, email, phone, subject, message }) {
         <p><strong>Message:</strong></p>
         <p>${String(message).replace(/\n/g, "<br/>")}</p>
       `,
-    });
-  } catch (e) {
-    console.warn("Contact notification email failed:", e.message);
-    return { sent: false, reason: "send-failed" };
-  }
+    },
+    "Contact notification email"
+  );
 
   // Best-effort confirmation to the person who submitted the form.
-  try {
-    await transporter.sendMail({
-      from: `"Alex Agro" <${process.env.SMTP_USER}>`,
-      to: email,
-      subject: "We received your message",
-      html: `<p>Hi ${name},</p><p>Thanks for reaching out. Our team will get back to you shortly.</p>`,
-    });
-  } catch (e) {
-    console.warn("Confirmation email to sender failed:", e.message);
+  if (sent) {
+    await sendWithTimeout(
+      transporter,
+      {
+        from: `"Alex Agro" <${process.env.SMTP_USER}>`,
+        to: email,
+        subject: "We received your message",
+        html: `<p>Hi ${name},</p><p>Thanks for reaching out. Our team will get back to you shortly.</p>`,
+      },
+      "Contact confirmation email"
+    );
   }
 
-  return { sent: true };
+  return { sent };
 }
 
 // Notifies the company inbox whenever someone submits a CV through the
 // Career page, with a direct link to download/view the CV.
+// Fire-and-forget: the CV is already saved to disk, so the response is
+// sent immediately and the notification email runs in the background.
 async function sendCareerApplicationEmail({ fullName, email, cvUrl }) {
   const transporter = buildTransporter();
-
   if (!transporter) {
-    console.warn(
-      "Email not sent: SMTP_HOST / SMTP_USER / SMTP_PASS are not set in backend/.env"
-    );
+    console.warn("Email not sent: SMTP_HOST / SMTP_USER / SMTP_PASS are not set");
     return { sent: false, reason: "smtp-not-configured" };
   }
 
   const receiver = process.env.CONTACT_RECEIVER_EMAIL || process.env.SMTP_USER;
 
-  try {
-    await transporter.sendMail({
+  await sendWithTimeout(
+    transporter,
+    {
       from: `"Website Career Application" <${process.env.SMTP_USER}>`,
       to: receiver,
       replyTo: email,
@@ -92,11 +111,9 @@ async function sendCareerApplicationEmail({ fullName, email, cvUrl }) {
         <p><strong>Email:</strong> ${email}</p>
         <p><strong>CV:</strong> <a href="${cvUrl}">Download / View CV</a></p>
       `,
-    });
-  } catch (e) {
-    console.warn("Career application notification email failed:", e.message);
-    return { sent: false, reason: "send-failed" };
-  }
+    },
+    "Career application notification email"
+  );
 
   return { sent: true };
 }

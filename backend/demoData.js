@@ -201,6 +201,26 @@ const demoData = {
       createdAt: new Date().toISOString(),
     },
   ],
+  careerApplications: [
+    {
+      _id: "careerapp-demo-1",
+      fullName: "Abdul Karim",
+      email: "abdul@example.com",
+      cvUrl: "/uploads/demo-cv-1.pdf",
+      cvFilename: "abdul-karim-cv.pdf",
+      isRead: false,
+      createdAt: new Date().toISOString(),
+    },
+    {
+      _id: "careerapp-demo-2",
+      fullName: "Nasrin Akter",
+      email: "nasrin@example.com",
+      cvUrl: "/uploads/demo-cv-2.pdf",
+      cvFilename: "nasrin-akter-cv.pdf",
+      isRead: true,
+      createdAt: new Date(Date.now() - 86400000).toISOString(),
+    },
+  ],
 };
 
 function isDemoMode() {

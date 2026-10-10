@@ -341,10 +341,14 @@
 @media (max-width: 640px) {
   .wwd { padding-inline: 16px; }
   .wwd__grid { grid-template-columns: 1fr; width: min(420px, 100%); }
-  .wwd__card { min-height: 456px; }
+  .wwd__card { height: auto; min-height: 456px; padding-bottom: 156px; }
   .wwd__photo { height: 130px; }
   .wwd__img { height: 116px; }
   .wwd__eyebrow { gap: 12px; letter-spacing: .2em; }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .wwd__go-label { max-width: 110px; margin-right: 10px; opacity: 1; }
 }
 
 /* Admin-managed homepage products */
@@ -393,6 +397,7 @@
   .op__media > img { height: min(100%, 280px); }
   .op__info { padding: 24px; }
   .op__arrow { width: 40px; height: 40px; }
+  .op__arrow { top: clamp(130px, 27.5vw, 170px); }
   .op__arrow--prev { left: 10px; }
   .op__arrow--next { right: 10px; }
 }
