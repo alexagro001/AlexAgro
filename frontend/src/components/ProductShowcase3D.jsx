@@ -65,13 +65,27 @@ export default function ProductShowcase3D({ products }) {
       paused = false;
       lastTime = performance.now();
     };
+    // Mouse pause (desktop). On touch devices we also pause on the
+    // first touch so users can tap a product without the marquee
+    // immediately scrolling the target out of view.
+    const onTouchStart = () => {
+      paused = true;
+    };
+    const onTouchEnd = () => {
+      paused = false;
+      lastTime = performance.now();
+    };
     wrap.addEventListener("mouseenter", onEnter);
     wrap.addEventListener("mouseleave", onLeave);
+    wrap.addEventListener("touchstart", onTouchStart, { passive: true });
+    wrap.addEventListener("touchend", onTouchEnd, { passive: true });
 
     return () => {
       cancelAnimationFrame(rafId);
       wrap.removeEventListener("mouseenter", onEnter);
       wrap.removeEventListener("mouseleave", onLeave);
+      wrap.removeEventListener("touchstart", onTouchStart);
+      wrap.removeEventListener("touchend", onTouchEnd);
     };
   }, [localizedProducts.length]);
 

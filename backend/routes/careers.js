@@ -7,11 +7,17 @@ const router = express.Router();
 router.get("/", async (req, res) => {
   try {
     const { active } = req.query;
-    const filter = {};
-    if (active !== "all") filter.isActive = true;
 
-    const careers = await Career.find(filter).sort({ createdAt: -1 });
-    res.json(careers);
+    if (process.env.MONGO_URI && require("mongoose").connection.readyState === 1) {
+      const filter = {};
+      if (active !== "all") filter.isActive = true;
+      const careers = await Career.find(filter).sort({ createdAt: -1 });
+      return res.json(careers);
+    }
+
+    // Demo fallback: serve bundled sample data when MongoDB is not connected.
+    const careers = demoData.careers || [];
+    return res.json(careers.filter((c) => active === "all" || c.isActive !== false));
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch careers", error: err.message });
   }

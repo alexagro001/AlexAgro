@@ -4,6 +4,7 @@ const validator = require("validator");
 const Contact = require("../models/Contact");
 const { requireAuth } = require("../middleware/auth");
 const { sendContactEmail } = require("../utils/sendEmail");
+const demoData = require("../demoData");
 
 const router = express.Router();
 
@@ -46,8 +47,13 @@ router.post("/", contactLimiter, async (req, res) => {
 // GET /api/contact -> admin only, view all inquiries
 router.get("/", requireAuth, async (req, res) => {
   try {
-    const messages = await Contact.find().sort({ createdAt: -1 });
-    res.json(messages);
+    if (process.env.MONGO_URI && require("mongoose").connection.readyState === 1) {
+      const messages = await Contact.find().sort({ createdAt: -1 });
+      return res.json(messages);
+    }
+
+    // Demo fallback: serve bundled sample data when MongoDB is not connected.
+    return res.json(demoData.contacts || []);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch messages", error: err.message });
   }

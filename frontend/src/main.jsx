@@ -5,6 +5,7 @@ import "./styles/theme.css";
 import "./styles/navbar.css";
 import "./styles/leaf.css";
 import "./styles/components.css";
+import "./styles/home-refresh.css";
 import "./styles/admin.css";
 import App from "./App.jsx";
 

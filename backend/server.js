@@ -24,15 +24,24 @@ const app = express();
 // JSON payload, plus the rest of that record's fields.
 app.use(express.json({ limit: "12mb" }));
 
-const allowedOrigins = (process.env.CLIENT_URLS || "http://localhost:5173")
+const allowedOrigins = (process.env.CLIENT_URLS || "http://localhost:5173,http://localhost:5174,http://127.0.0.1:5173,http://127.0.0.1:5174")
   .split(",")
-  .map((o) => o.trim());
+  .map((o) => o.trim())
+  .filter(Boolean);
+
+const isLocalFrontendOrigin = (origin) => {
+  if (!origin) return true;
+  return /^https?:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin);
+};
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      // allow tools like curl/Postman (no origin) and any listed frontend URL
-      if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+      // allow tools like curl/Postman (no origin), any listed frontend URL,
+      // and typical local Vite ports during development.
+      if (!origin || allowedOrigins.includes(origin) || isLocalFrontendOrigin(origin)) {
+        return callback(null, true);
+      }
       callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
@@ -82,8 +91,15 @@ async function ensureDefaultAdmin() {
 }
 
 async function start() {
-  await connectDB();
-  await ensureDefaultAdmin();
+  const dbReady = await connectDB();
+  app.locals.demoMode = !dbReady;
+
+  if (dbReady) {
+    await ensureDefaultAdmin();
+  } else {
+    console.log("Demo mode enabled: public API endpoints will serve bundled sample data.");
+  }
+
   app.listen(PORT, () => console.log(`API server running on http://localhost:${PORT}`));
 }
 

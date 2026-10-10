@@ -203,6 +203,11 @@
   animation: banner-shimmer 1.8s ease-in-out infinite;
 }
 
+.banner-slider__shimmer,
+.banner-slide__backdrop {
+  pointer-events: none;
+}
+
 .banner-slider__wake-note {
   position: absolute;
   left: 50%;
@@ -247,24 +252,41 @@
 }
 
 .banner-slide__backdrop {
-  display: none;
+  position: absolute;
+  inset: -12px;
+  display: block;
+  background-position: center;
+  background-size: cover;
+  filter: blur(12px);
+  opacity: 0.45;
+  transform: scale(1.04);
 }
 
-.banner-slide__img {
-  position: relative;
+.banner-slide__backdrop video {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
+.banner-slide__img {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 .banner-slide__scrim {
   position: absolute;
+  z-index: 2;
   inset: 0;
-  background: linear-gradient(180deg, rgba(10, 18, 10, 0.1) 0%, rgba(10, 18, 10, 0.6) 100%);
+  background: linear-gradient(180deg, rgba(10, 18, 10, 0.04) 0%, rgba(10, 18, 10, 0.45) 100%);
 }
 
 .banner-slide__copy {
   position: absolute;
+  z-index: 3;
   left: 48px;
   bottom: 48px;
   max-width: 560px;
@@ -1272,6 +1294,19 @@
 @media (max-width: 860px) {
   .footer__inner {
     grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  .footer__inner {
+    grid-template-columns: 1fr;
+  }
+  .footer__inner > div {
+    max-width: 100% !important;
+  }
+  .footer__inner p,
+  .footer__contact-card li span {
+    max-width: 100% !important;
   }
 }
 

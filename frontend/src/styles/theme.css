@@ -51,7 +51,6 @@ body {
     radial-gradient(680px circle at 15% 78%, rgba(31, 92, 61, 0.16), transparent 60%),
     radial-gradient(520px circle at 88% 92%, rgba(143, 191, 63, 0.16), transparent 60%),
     var(--husk-cream);
-  background-attachment: fixed;
   color: var(--ink-soil);
   font-family: var(--font-body);
   font-size: 17px;
@@ -139,6 +138,39 @@ img {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* On coarse-pointer devices (touchscreens) :hover persists after a tap,
+   which makes hover-only lifts/transforms stick visually and glitch.
+   Neutralise the most common hover-driven transforms here so the
+   interaction model degrades to a plain :active state instead. */
+@media (hover: none) and (pointer: coarse) {
+  .navbar__brand:hover .navbar__brand-chip,
+  .navbar__link > a:hover,
+  .navbar__link > button:hover,
+  .navbar__link:hover .navbar__dropdown,
+  .navbar__dropdown a:hover,
+  .navbar__lang-btn:hover,
+  .navbar__icon-btn:hover,
+  .navbar__link:hover .navbar__leaf-icon,
+  .navbar__link:hover .navbar__caret,
+  .leaf-btn:hover,
+  .leaf-btn--amber:hover,
+  .leaf-btn--outline:hover,
+  .leaf-btn--outline-dark:hover,
+  .footer a:hover,
+  .page-header__back:hover,
+  .product-marquee__item:hover,
+  .gallery-grid__item:hover,
+  .dealer-card:hover,
+  .distributor-card:hover,
+  .stat-strip__num:hover,
+  [class*="__card"]:hover,
+  [class*="-card"]:hover {
+    transform: none !important;
+    animation: none !important;
+    animation-play-state: paused !important;
   }
 }
 

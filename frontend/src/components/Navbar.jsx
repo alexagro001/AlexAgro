@@ -47,93 +47,107 @@ export default function Navbar() {
 
           <button
             className="navbar__burger"
-            aria-label="Toggle menu"
+            type="button"
+            aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
+            aria-expanded={mobileOpen}
+            aria-controls="navbar-menu"
             onClick={() => setMobileOpen((o) => !o)}
           >
-            <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
-              <path d="M0 1h20M0 8h20M0 15h20" stroke="currentColor" strokeWidth="2" />
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              {mobileOpen ? (
+                <path d="m4 4 12 12M16 4 4 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              ) : (
+                <path d="M2 4h16M2 10h16M2 16h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              )}
             </svg>
           </button>
 
-          <ul className={`navbar__links ${mobileOpen ? "is-open" : ""}`}>
-            {navigation.map((item) => (
-              <li
-                key={item.label}
-                className={`navbar__link ${openMenu === item.label ? "is-open" : ""}`}
-              >
-                {item.children ? (
-                  <>
-                    <button
-                      onClick={() => toggleMobileGroup(item.label)}
-                      aria-expanded={openMenu === item.label}
-                    >
+          <div id="navbar-menu" className={`navbar__menu ${mobileOpen ? "is-open" : ""}`}>
+            <ul className="navbar__links">
+              {navigation.map((item) => (
+                <li
+                  key={item.label}
+                  className={`navbar__link ${openMenu === item.label ? "is-open" : ""}`}
+                >
+                  {item.children ? (
+                    <>
+                      <button
+                        onClick={() => toggleMobileGroup(item.label)}
+                        aria-expanded={openMenu === item.label}
+                      >
+                        <NavLeaf />
+                        {t(item.label)}
+                        <span className="navbar__caret" />
+                      </button>
+                      <div className="navbar__dropdown">
+                        {item.children.map((child) => (
+                          <NavLink
+                            key={child.to}
+                            to={child.to}
+                            onClick={() => {
+                              setMobileOpen(false);
+                              setOpenMenu(null);
+                            }}
+                          >
+                            {t(child.label)}
+                          </NavLink>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <NavLink to={item.to} onClick={() => setMobileOpen(false)}>
                       <NavLeaf />
                       {t(item.label)}
-                      <span className="navbar__caret" />
-                    </button>
-                    <div className="navbar__dropdown">
-                      {item.children.map((child) => (
-                        <NavLink
-                          key={child.to}
-                          to={child.to}
-                          onClick={() => {
-                            setMobileOpen(false);
-                            setOpenMenu(null);
-                          }}
-                        >
-                          {t(child.label)}
-                        </NavLink>
-                      ))}
-                    </div>
-                  </>
+                    </NavLink>
+                  )}
+                </li>
+              ))}
+            </ul>
+
+            <div className="navbar__actions">
+              <button
+                className="navbar__lang-btn"
+                onClick={toggleLanguage}
+                aria-label="Switch language"
+                title={lang === "en" ? "বাংলায় দেখুন" : "View in English"}
+              >
+                {lang === "en" ? "বাং" : "EN"}
+              </button>
+
+              <button
+                className="navbar__icon-btn"
+                onClick={handleSoundToggle}
+                aria-label={soundOn ? "Mute sound effects" : "Enable sound effects"}
+                title={soundOn ? "Mute sound effects" : "Enable sound effects"}
+              >
+                {soundOn ? (
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M2 6v4h3l4 3V3L5 6H2Z" fill="currentColor" />
+                    <path d="M11 5.5c1 .8 1 4.2 0 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                  </svg>
                 ) : (
-                  <NavLink to={item.to} onClick={() => setMobileOpen(false)}>
-                    <NavLeaf />
-                    {t(item.label)}
-                  </NavLink>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M2 6v4h3l4 3V3L5 6H2Z" fill="currentColor" />
+                    <path d="M10.5 6.5l3 3M13.5 6.5l-3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                  </svg>
                 )}
-              </li>
-            ))}
-          </ul>
+              </button>
 
-          <button
-            className="navbar__lang-btn"
-            onClick={toggleLanguage}
-            aria-label="Switch language"
-            title={lang === "en" ? "বাংলায় দেখুন" : "View in English"}
-          >
-            {lang === "en" ? "বাং" : "EN"}
-          </button>
-
-          <button
-            className="navbar__icon-btn"
-            onClick={handleSoundToggle}
-            aria-label={soundOn ? "Mute sound effects" : "Enable sound effects"}
-            title={soundOn ? "Mute sound effects" : "Enable sound effects"}
-          >
-            {soundOn ? (
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M2 6v4h3l4 3V3L5 6H2Z" fill="currentColor" />
-                <path d="M11 5.5c1 .8 1 4.2 0 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-              </svg>
-            ) : (
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M2 6v4h3l4 3V3L5 6H2Z" fill="currentColor" />
-                <path d="M10.5 6.5l3 3M13.5 6.5l-3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-              </svg>
-            )}
-          </button>
-
-          <button
-            className="navbar__icon-btn"
-            aria-label="Search dealers and distributors"
-            onClick={() => setSearchOpen(true)}
-          >
-            <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
-              <circle cx="7.2" cy="7.2" r="5.7" stroke="currentColor" strokeWidth="1.8" />
-              <path d="M11.5 11.5L15.5 15.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-            </svg>
-          </button>
+              <button
+                className="navbar__icon-btn"
+                aria-label="Search dealers and distributors"
+                onClick={() => {
+                  setSearchOpen(true);
+                  setMobileOpen(false);
+                }}
+              >
+                <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
+                  <circle cx="7.2" cy="7.2" r="5.7" stroke="currentColor" strokeWidth="1.8" />
+                  <path d="M11.5 11.5L15.5 15.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
       </nav>
 

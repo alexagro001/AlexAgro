@@ -1,18 +1,23 @@
 const express = require("express");
 const Banner = require("../models/Banner");
 const { requireAuth } = require("../middleware/auth");
+const demoData = require("../demoData");
 
 const router = express.Router();
 
 // GET /api/banners -> public, sorted for the homepage slider
 router.get("/", async (req, res) => {
   try {
-    const { active } = req.query;
-    const filter = {};
-    if (active !== "all") filter.isActive = true;
+    if (process.env.MONGO_URI && require("mongoose").connection.readyState === 1) {
+      const { active } = req.query;
+      const filter = {};
+      if (active !== "all") filter.isActive = true;
 
-    const banners = await Banner.find(filter).sort({ order: 1, createdAt: -1 });
-    res.json(banners);
+      const banners = await Banner.find(filter).sort({ order: 1, createdAt: -1 });
+      return res.json(banners);
+    }
+
+    return res.json(demoData.banners);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch banners", error: err.message });
   }

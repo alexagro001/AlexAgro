@@ -8,10 +8,10 @@ async function connectDB() {
   const uri = process.env.MONGO_URI;
 
   if (!uri) {
-    console.error(
-      "MONGO_URI is missing. Copy backend/.env.example to backend/.env and fill in your MongoDB Atlas connection string."
+    console.warn(
+      "MONGO_URI is missing. Starting in demo mode with bundled sample data. Copy backend/.env.example to backend/.env to enable MongoDB Atlas."
     );
-    process.exit(1);
+    return false;
   }
 
   // A cold container's networking/DNS can take a moment to be fully ready,
@@ -25,19 +25,21 @@ async function connectDB() {
     try {
       await mongoose.connect(uri);
       console.log(`MongoDB connected -> ${mongoose.connection.host}`);
-      return;
+      return true;
     } catch (err) {
       const isLastAttempt = attempt === MAX_ATTEMPTS;
-      console.error(
+      console.warn(
         `MongoDB connection attempt ${attempt}/${MAX_ATTEMPTS} failed: ${err.message}`
       );
       if (isLastAttempt) {
-        console.error("Giving up after repeated MongoDB connection failures.");
-        process.exit(1);
+        console.warn("MongoDB unavailable; falling back to demo mode.");
+        return false;
       }
       await wait(attempt * 2000);
     }
   }
+
+  return false;
 }
 
 module.exports = connectDB;

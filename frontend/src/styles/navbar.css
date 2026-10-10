@@ -71,6 +71,16 @@
   flex-wrap: nowrap;
 }
 
+.navbar__menu {
+  display: contents;
+}
+
+.navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .navbar__link {
   position: relative;
 }
@@ -218,21 +228,52 @@
   display: none;
 }
 
-@media (max-width: 1024px) {
-  .navbar__links {
-    position: fixed;
-    inset: 64px 0 0 0;
-    background: linear-gradient(160deg, #d3f0c9, #aadb9c);
+@media (max-width: 1199px) {
+  .navbar {
+    z-index: 1200;
+  }
+
+  .navbar__bar {
+    padding: 10px 16px;
+    gap: 12px;
+  }
+
+  .navbar__menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    display: none;
     flex-direction: column;
     align-items: stretch;
-    padding: 12px 20px 40px;
+    gap: 12px;
+    max-height: calc(100vh - 68px);
+    max-height: calc(100dvh - 68px);
     overflow-y: auto;
-    transform: translateX(100%);
-    transition: transform 0.25s ease;
+    padding: 12px 20px 18px;
+    background: linear-gradient(160deg, #d3f0c9, #aadb9c);
+    border-bottom: 1px solid rgba(31, 92, 61, 0.18);
+    box-shadow: 0 12px 24px rgba(31, 70, 46, 0.16);
   }
-  .navbar__links.is-open {
-    transform: translateX(0);
+
+  .navbar__menu.is-open {
+    display: flex;
   }
+
+  .navbar__links {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+  }
+
+  .navbar__link > a,
+  .navbar__link > button {
+    width: 100%;
+    min-height: 42px;
+    padding: 10px 12px;
+    text-align: left;
+  }
+
   .navbar__dropdown {
     position: static;
     opacity: 1;
@@ -240,11 +281,26 @@
     transform: none;
     display: none;
     box-shadow: none;
-    margin: 4px 0 8px 12px;
+    margin: 2px 0 8px 12px;
+    padding: 4px 8px;
+    border-color: rgba(31, 92, 61, 0.12);
+    background: rgba(255, 255, 255, 0.45);
   }
+
   .navbar__link.is-open .navbar__dropdown {
     display: block;
   }
+
+  .navbar__link:hover .navbar__dropdown {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .navbar__actions {
+    padding-top: 10px;
+    border-top: 1px solid rgba(31, 92, 61, 0.18);
+  }
+
   .navbar__burger {
     display: flex;
     align-items: center;

@@ -1,61 +1,41 @@
 import { useEffect, useRef, useState, lazy, Suspense } from "react";
-import { animate, onScroll, stagger, splitText } from "animejs";
-import { Link, useNavigate } from "react-router-dom";
+import { animate, splitText, stagger } from "animejs";
+import { useNavigate } from "react-router-dom";
 import LeafButton from "../components/LeafButton";
-import LeafIcon from "../components/LeafIcon";
 import BannerSlider from "../components/BannerSlider";
 import NewsEventsSection from "../components/NewsEventsSection";
 import GrassDivider from "../components/GrassDivider";
-import ProductShowcase3D from "../components/ProductShowcase3D";
+import HomeHero from "../components/HomeHero";
+import HomeWhatWeDo from "../components/HomeWhatWeDo";
+import HomeProducts from "../components/HomeProducts";
 import LazyOnVisible from "../components/LazyOnVisible";
 import { useLanguage } from "../context/LanguageContext";
 import api from "../api/axios";
-import { site } from "../siteConfig";
 
 const District3DMap = lazy(() => import("../components/District3DMap"));
-
-const WINGS = [
-  {
-    title: "Crop Health",
-    to: "/products/crop-health",
-    desc: "Bio-based fungicides, pesticides and crop protection inputs formulated for safe food production.",
-  },
-  {
-    title: "Agro Processing",
-    to: "/products/agro-processing",
-    desc: "Post-harvest infrastructure and processing support that reduces loss from farm to market.",
-  },
-  {
-    title: "Distribution Network",
-    to: "/network/dealers",
-    desc: "A nationwide web of dealers and sales officers keeping inputs available close to every farm.",
-  },
-  {
-    title: "Farmer Support",
-    to: "/about",
-    desc: "Field-level advisory and training so farmers get the most out of every input we supply.",
-  },
-];
 
 export default function Home() {
   const { t } = useLanguage();
   const navigate = useNavigate();
-  const wingsGridRef = useRef(null);
   const taglineRef = useRef(null);
   const [districtCounts, setDistrictCounts] = useState({});
   const [products, setProducts] = useState([]);
   const [counts, setCounts] = useState({ dealers: 0, distributors: 0, divisions: 0 });
 
   useEffect(() => {
+    api
+      .get("/products")
+      .then((res) => setProducts(res.data))
+      .catch((err) => console.error("Failed to load product preview", err));
+  }, []);
+
+  useEffect(() => {
     (async () => {
       try {
-        const [dealerRes, distributorRes, productRes] = await Promise.all([
+        const [dealerRes, distributorRes] = await Promise.all([
           api.get("/dealers"),
           api.get("/distributors"),
-          api.get("/products"),
         ]);
-
-        setProducts(productRes.data);
 
         const divisions = new Set([
           ...dealerRes.data.map((d) => d.division),
@@ -67,7 +47,6 @@ export default function Home() {
           if (d.district) dCounts[d.district] = (dCounts[d.district] || 0) + 1;
         });
         setDistrictCounts(dCounts);
-
         setCounts({
           dealers: dealerRes.data.length,
           distributors: distributorRes.data.length,
@@ -80,28 +59,15 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (!wingsGridRef.current) return undefined;
-    const cards = wingsGridRef.current.querySelectorAll(".tile");
-    const anim = animate(cards, {
-      translateY: [26, 0],
-      delay: stagger(90),
-      duration: 700,
-      easing: "easeOutQuad",
-      autoplay: onScroll({
-        target: wingsGridRef.current,
-        enter: "bottom-=40 top",
-        once: true,
-      }),
-    });
-    return () => anim.pause?.();
-  }, []);
-
-  useEffect(() => {
     if (!taglineRef.current) return undefined;
+    // Skip the 3D wave entirely when the user has reduced motion enabled
+    // or on coarse-pointer devices (touchscreens), where a looping
+    // rotateY+z transform would only cost GPU compositing layers.
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isTouch = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+    if (prefersReduced || isTouch) return undefined;
+
     const split = splitText(taglineRef.current, { words: { class: "split-word" } });
-    // Loops forever (never stops on its own) so the animation is always
-    // visible whenever the page is looked at - a slow 3D wave rolling
-    // through the words, one after another.
     const anim = animate(split.words, {
       rotateY: [0, 34, 0],
       z: [0, 42, 0],
@@ -121,29 +87,9 @@ export default function Home() {
     <div>
       <BannerSlider />
 
-      <section className="hero">
-        <div className="hero__inner">
-          <div>
-            <div className="eyebrow hero__eyebrow" ref={taglineRef}>{t(site.tagline)}</div>
-            <h1 className="hero__title">{t("Restoring organic life to global crop soils.")}</h1>
-            <p className="hero__lede">
-              {t(site.description)} {t("We deliver safe, science-backed crop-health inputs and agro-processing support through a nationwide network of dealers and sales officers.")}
-            </p>
-            <div className="hero__actions">
-              <LeafButton to="/products/crop-health">{t("Explore Products")}</LeafButton>
-              <LeafButton to="/network/dealers" variant="outline">
-                {t("Find a Dealer")}
-              </LeafButton>
-            </div>
-          </div>
-          <div className="hero__art">
-            <img src="/images/leaf-strength-arm.jpg" alt="Strength grown from every leaf" className="hero__art-img" />
-          </div>
-        </div>
-        <div className="hero__field-photo" style={{ backgroundImage: "url(/images/leaves-falling.jpg)" }} />
-      </section>
+      <HomeHero taglineRef={taglineRef} />
 
-      <ProductShowcase3D products={products} />
+      <HomeProducts products={products} />
 
       <section className="stat-strip">
         <div className="stat-strip__inner">
@@ -166,23 +112,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section">
-        <div className="container">
-          <div className="eyebrow">{t("What We Do")}</div>
-          <h2>{t("Two wings, one goal: safe food security")}</h2>
-          <div className="grid grid--4" style={{ marginTop: 28 }} ref={wingsGridRef}>
-            {WINGS.map((w) => (
-              <Link key={w.title} to={w.to} className="card tile" style={{ display: "block" }}>
-                <div className="tile__icon">
-                  <LeafIcon size={20} />
-                </div>
-                <h3>{t(w.title)}</h3>
-                <p>{t(w.desc)}</p>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+      <HomeWhatWeDo />
 
       <GrassDivider style={{ display: "block", width: "100%", height: 28, color: "var(--canopy-green)" }} />
 

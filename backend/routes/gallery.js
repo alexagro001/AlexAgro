@@ -1,6 +1,7 @@
 const express = require("express");
 const GalleryItem = require("../models/GalleryItem");
 const { requireAuth } = require("../middleware/auth");
+const demoData = require("../demoData");
 
 const router = express.Router();
 
@@ -8,12 +9,22 @@ const router = express.Router();
 router.get("/", async (req, res) => {
   try {
     const { type, active } = req.query;
-    const filter = {};
-    if (active !== "all") filter.isActive = true;
-    if (type) filter.type = type;
 
-    const items = await GalleryItem.find(filter).sort({ order: 1, createdAt: -1 });
-    res.json(items);
+    if (process.env.MONGO_URI && require("mongoose").connection.readyState === 1) {
+      const filter = {};
+      if (active !== "all") filter.isActive = true;
+      if (type) filter.type = type;
+      const items = await GalleryItem.find(filter).sort({ order: 1, createdAt: -1 });
+      return res.json(items);
+    }
+
+    // Demo fallback: serve bundled sample data when MongoDB is not connected.
+    const items = demoData.gallery.filter((item) => {
+      if (active !== "all" && item.isActive !== true) return false;
+      if (type && item.type !== type) return false;
+      return true;
+    });
+    return res.json(items);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch gallery items", error: err.message });
   }

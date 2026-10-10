@@ -106,6 +106,9 @@ export default function District3DMap({ height = 480, onDistrictSelect, counts =
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(width, heightPx);
+    // touch-action: none prevents OrbitControls touch gestures from
+    // conflicting with the browser's default scroll/pinch behaviour.
+    renderer.domElement.style.touchAction = "none";
     container.appendChild(renderer.domElement);
 
     const labelRenderer = new CSS2DRenderer();

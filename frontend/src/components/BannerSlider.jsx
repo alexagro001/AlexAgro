@@ -3,20 +3,26 @@ import { Link } from "react-router-dom";
 import api from "../api/axios";
 import { playSwipeSound } from "../utils/sound";
 import { useLanguage } from "../context/LanguageContext";
+import { normalizeLink } from "../utils/links";
 
 const AUTO_ADVANCE_MS = 5000;
 
+function sortBanners(items) {
+  return [...items].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+}
+
 function SlideLink({ link, children }) {
-  if (!link) return <div className="banner-slide__hit">{children}</div>;
-  if (link.startsWith("/")) {
+  const target = link ? normalizeLink(link) : "";
+  if (!target || target === "#") return <div className="banner-slide__hit">{children}</div>;
+  if (target.startsWith("/")) {
     return (
-      <Link to={link} className="banner-slide__hit">
+      <Link to={target} className="banner-slide__hit">
         {children}
       </Link>
     );
   }
   return (
-    <a href={link} target="_blank" rel="noreferrer" className="banner-slide__hit">
+    <a href={target} target="_blank" rel="noreferrer" className="banner-slide__hit">
       {children}
     </a>
   );
@@ -29,6 +35,22 @@ export default function BannerSlider() {
   const [index, setIndex] = useState(0);
   const timerRef = useRef(null);
   const { t } = useLanguage();
+
+  useEffect(() => {
+    const refreshBanners = async () => {
+      try {
+        const res = await api.get("/banners", { params: { active: "true" }, timeout: 20000 });
+        const ordered = sortBanners(res.data);
+        setBanners(ordered);
+        setIndex((current) => Math.min(current, Math.max(ordered.length - 1, 0)));
+      } catch (err) {
+        console.error("Failed to refresh homepage banners", err);
+      }
+    };
+
+    window.addEventListener("focus", refreshBanners);
+    return () => window.removeEventListener("focus", refreshBanners);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -44,9 +66,11 @@ export default function BannerSlider() {
 
     async function loadWithRetry(attempt = 1) {
       try {
-        const res = await api.get("/banners", { timeout: 20000 });
+        const res = await api.get("/banners", { params: { active: "true" }, timeout: 20000 });
         if (!cancelled) {
-          setBanners(res.data);
+          const ordered = sortBanners(res.data);
+          setBanners(ordered);
+          setIndex((current) => Math.min(current, Math.max(ordered.length - 1, 0)));
           setLoading(false);
         }
       } catch (err) {
@@ -107,7 +131,11 @@ export default function BannerSlider() {
       {banners.map((b, i) => {
         const isVideo = /\.(mp4|webm|ogg|mov)$/i.test(b.image);
         return (
-          <div key={b._id} className={`banner-slide ${i === index ? "is-active" : ""}`}>
+          <div
+            key={b._id}
+            className={`banner-slide ${i === index ? "is-active" : ""}`}
+            aria-hidden={i !== index}
+          >
             <SlideLink link={b.link}>
               <div
                 className="banner-slide__backdrop"
@@ -118,7 +146,7 @@ export default function BannerSlider() {
               {isVideo ? (
                 <video className="banner-slide__img" src={b.image} autoPlay muted loop playsInline />
               ) : (
-                <img src={b.image} alt={b.title || ""} className="banner-slide__img" />
+                <img src={b.image} alt={b.title || `Homepage banner ${i + 1}`} className="banner-slide__img" />
               )}
               <div className="banner-slide__scrim" />
               {(b.title || b.subtitle) && (

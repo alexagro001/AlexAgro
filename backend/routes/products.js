@@ -1,19 +1,29 @@
 const express = require("express");
 const Product = require("../models/Product");
 const { requireAuth } = require("../middleware/auth");
+const demoData = require("../demoData");
 
 const router = express.Router();
 
 // GET /api/products?category=crop-health
 router.get("/", async (req, res) => {
   try {
-    const { category, active } = req.query;
-    const filter = {};
-    if (active !== "all") filter.isActive = true;
-    if (category) filter.category = category;
+    if (process.env.MONGO_URI && require("mongoose").connection.readyState === 1) {
+      const { category, active } = req.query;
+      const filter = {};
+      if (active !== "all") filter.isActive = true;
+      if (category) filter.category = category;
 
-    const products = await Product.find(filter).sort({ createdAt: -1 });
-    res.json(products);
+      const products = await Product.find(filter).sort({ createdAt: -1 });
+      return res.json(products);
+    }
+
+    const { category } = req.query;
+    const products = demoData.products.filter((product) => {
+      if (category && product.category !== category) return false;
+      return true;
+    });
+    return res.json(products);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch products", error: err.message });
   }
