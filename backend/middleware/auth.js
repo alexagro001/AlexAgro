@@ -13,6 +13,17 @@ async function requireAuth(req, res, next) {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (req.app.locals.demoAuthEnabled) {
+      const demoAdmin = req.app.locals.demoAdmin;
+      if (decoded.id !== demoAdmin.id || decoded.role !== demoAdmin.role) {
+        return res.status(401).json({ message: "Not authorized, invalid or expired token" });
+      }
+
+      req.admin = { _id: demoAdmin.id, ...demoAdmin };
+      return next();
+    }
+
     const admin = await Admin.findById(decoded.id);
 
     if (!admin) {

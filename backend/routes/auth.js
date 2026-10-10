@@ -27,6 +27,22 @@ router.post("/login", loginLimiter, async (req, res) => {
       return res.status(400).json({ message: "Username and password are required" });
     }
 
+    if (req.app.locals.demoAuthEnabled) {
+      const admin = req.app.locals.demoAdmin;
+      if (
+        username.trim().toLowerCase() !== admin.username ||
+        password !== req.app.locals.demoAdminPassword
+      ) {
+        return res.status(401).json({ message: "Invalid username or password" });
+      }
+
+      const token = signToken({ _id: admin.id, role: admin.role });
+      return res.json({
+        token,
+        admin: { id: admin.id, name: admin.name, username: admin.username, role: admin.role },
+      });
+    }
+
     const admin = await Admin.findOne({ username: username.toLowerCase() }).select("+password");
     if (!admin) {
       return res.status(401).json({ message: "Invalid username or password" });

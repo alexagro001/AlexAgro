@@ -97,7 +97,24 @@ async function start() {
   if (dbReady) {
     await ensureDefaultAdmin();
   } else {
+    app.locals.demoAuthEnabled =
+      process.env.NODE_ENV !== "production" && Boolean(process.env.DEMO_ADMIN_PASSWORD);
+    app.locals.demoAdmin = {
+      id: "demo-admin",
+      name: "Admin",
+      username: (process.env.DEMO_ADMIN_USERNAME || "admin").toLowerCase(),
+      role: "superadmin",
+    };
+    app.locals.demoAdminPassword = process.env.DEMO_ADMIN_PASSWORD;
+    if (!process.env.JWT_SECRET) {
+      process.env.JWT_SECRET = require("crypto").randomBytes(48).toString("hex");
+    }
     console.log("Demo mode enabled: public API endpoints will serve bundled sample data.");
+    if (app.locals.demoAuthEnabled) {
+      console.log(`Local demo admin login enabled (username: ${app.locals.demoAdmin.username}).`);
+    } else if (process.env.NODE_ENV !== "production") {
+      console.warn("Local demo admin login disabled; set DEMO_ADMIN_PASSWORD to enable it.");
+    }
   }
 
   app.listen(PORT, () => console.log(`API server running on http://localhost:${PORT}`));
