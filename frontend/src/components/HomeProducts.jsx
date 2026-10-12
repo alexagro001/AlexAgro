@@ -34,12 +34,17 @@ export default function HomeProducts({ products }) {
   const { lang, t } = useLanguage();
   const items = (products.length ? products : PRODUCT_FALLBACKS).map((product) => localizeProduct(product, lang));
   const [activeIndex, setActiveIndex] = useState(0);
+  // Which way the swap animation slides: 1 = towards next, -1 = towards previous.
+  const [direction, setDirection] = useState(1);
   const index = Math.min(activeIndex, items.length - 1);
   const active = items[index];
   const target = normalizeLink(
     active.detailsLink || (active.category === "agro-processing" ? "/products/agro-processing" : "/products/crop-health")
   );
-  const next = (delta) => setActiveIndex((index + delta + items.length) % items.length);
+  const next = (delta) => {
+    setDirection(delta);
+    setActiveIndex((index + delta + items.length) % items.length);
+  };
 
   return (
     <section className="op" aria-labelledby="op-title">
@@ -52,7 +57,7 @@ export default function HomeProducts({ products }) {
         <button className="op__arrow op__arrow--prev" type="button" aria-label={t("Previous product")} onClick={() => next(-1)}>
           <Arrow previous />
         </button>
-        <article className="op__card" key={active._id || index}>
+        <article className={`op__card op__card--${direction > 0 ? "next" : "prev"}`} key={active._id || index}>
           <div className="op__media">
             <span className="op__badge"><LeafIcon size={17} />{t(active.category === "agro-processing" ? "Agro Processing" : "Crop Health")}</span>
             {active.image ? <img src={active.image} alt={active.name} loading="lazy" /> : <LeafIcon size={72} />}
@@ -80,7 +85,10 @@ export default function HomeProducts({ products }) {
             key={item._id || `${item.name}-${itemIndex}`}
             className={`op__thumb${itemIndex === index ? " is-active" : ""}`}
             aria-pressed={itemIndex === index}
-            onClick={() => setActiveIndex(itemIndex)}
+            onClick={() => {
+              setDirection(itemIndex >= index ? 1 : -1);
+              setActiveIndex(itemIndex);
+            }}
           >
             {item.image ? <img src={item.image} alt="" loading="lazy" /> : <LeafIcon size={40} />}
             <span>{item.name}</span>

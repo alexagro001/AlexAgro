@@ -15,20 +15,20 @@ const CONFIG = {
     endpoint: "/dealers",
     listPath: "/network/dealers",
     listLabel: "Dealer List",
-    metaFields: (d) => [d.area, d.district, d.division].filter(Boolean).join(", "),
+    metaFields: (d, t) => [d.area, d.district, d.division].filter(Boolean).map(t).join(", "),
   },
   distributor: {
     endpoint: "/distributors",
     listPath: "/network/sales-officers",
     listLabel: "Sales Officer",
-    metaFields: (d) => [d.designation, d.territory, d.division].filter(Boolean).join(", "),
+    metaFields: (d, t, l) => [l(d, "designation"), d.territory, d.division].filter(Boolean).map(t).join(", "),
   },
 };
 
 export default function NetworkDetailPage({ kind }) {
   const { id } = useParams();
   const cfg = CONFIG[kind];
-  const { t } = useLanguage();
+  const { t, n, l } = useLanguage();
   const navigate = useNavigate();
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -90,7 +90,7 @@ export default function NetworkDetailPage({ kind }) {
 
   return (
     <div>
-      <PageHeader eyebrow="Distribution Network" title={item.name} description={cfg.metaFields(item)} />
+      <PageHeader eyebrow="Distribution Network" title={l(item, "name")} description={cfg.metaFields(item, t, l)} />
 
       <section className="section">
         <div className="container grid grid--2">
@@ -101,7 +101,7 @@ export default function NetworkDetailPage({ kind }) {
             {item.photo && (
               <img
                 src={item.photo}
-                alt={item.name}
+                alt={l(item, "name")}
                 style={{
                   width: 180,
                   height: 180,
@@ -113,17 +113,17 @@ export default function NetworkDetailPage({ kind }) {
                 }}
               />
             )}
-            <h2 style={{ marginBottom: 6 }}>{item.name}</h2>
-            {item.designation && <p style={{ marginBottom: 4 }}>{item.designation}</p>}
-            {item.address && <p style={{ marginBottom: 4 }}>{item.address}</p>}
+            <h2 style={{ marginBottom: 6 }}>{l(item, "name")}</h2>
+            {item.designation && <p style={{ marginBottom: 4 }}>{l(item, "designation")}</p>}
+            {item.address && <p style={{ marginBottom: 4 }}>{l(item, "address")}</p>}
             {(item.area || item.territory) && (
-              <p style={{ marginBottom: 4 }}>{item.area || item.territory}</p>
+              <p style={{ marginBottom: 4 }}>{t(item.area || item.territory)}</p>
             )}
             <p style={{ marginBottom: 4 }}>
-              {item.district ? `${item.district}, ` : ""}
-              {item.division}
+              {item.district ? `${t(item.district)}, ` : ""}
+              {t(item.division)}
             </p>
-            {item.phone && <p style={{ marginBottom: 4 }}>{t("Phone")}: {item.phone}</p>}
+            {item.phone && <p style={{ marginBottom: 4 }}>{t("Phone")}: {n(item.phone)}</p>}
             {item.email && <p style={{ marginBottom: 4 }}>{t("Email")}: {item.email}</p>}
 
             <div style={{ marginTop: 20, display: "flex", gap: 12, flexWrap: "wrap" }}>
@@ -142,7 +142,7 @@ export default function NetworkDetailPage({ kind }) {
             <p className="form-note" style={{ marginBottom: 10, textAlign: "center" }}>
               {t("Located in")}{" "}
               <strong>
-                {item.district ? `${item.district}, ` : ""}
+                {item.district ? `${t(item.district)}, ` : ""}
                 {t(item.division)}
               </strong>
             </p>
@@ -154,7 +154,7 @@ export default function NetworkDetailPage({ kind }) {
                   highlightDistrict={item.district}
                   markerLat={item.lat}
                   markerLng={item.lng}
-                  markerName={item.name}
+                  markerName={l(item, "name")}
                   onDistrictSelect={({ division }) => navigate(`${cfg.listPath}?division=${encodeURIComponent(division)}`)}
                 />
               </Suspense>

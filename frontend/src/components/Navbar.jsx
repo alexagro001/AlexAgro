@@ -41,14 +41,14 @@ export default function Navbar() {
         <div className="navbar__bar">
           <NavLink to="/" className="navbar__brand" onClick={() => setMobileOpen(false)}>
             <span className="navbar__brand-chip">
-              <img src="/logo-full.png" alt={site.name} />
+              <img src="/logo-full.png" alt={t(site.name)} />
             </span>
           </NavLink>
 
           <button
             className="navbar__burger"
             type="button"
-            aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
+            aria-label={t(mobileOpen ? "Close navigation menu" : "Open navigation menu")}
             aria-expanded={mobileOpen}
             aria-controls="navbar-menu"
             onClick={() => setMobileOpen((o) => !o)}
@@ -108,7 +108,7 @@ export default function Navbar() {
               <button
                 className="navbar__lang-btn"
                 onClick={toggleLanguage}
-                aria-label="Switch language"
+                aria-label={t("Switch language")}
                 title={lang === "en" ? "বাংলায় দেখুন" : "View in English"}
               >
                 {lang === "en" ? "বাং" : "EN"}
@@ -117,8 +117,8 @@ export default function Navbar() {
               <button
                 className="navbar__icon-btn"
                 onClick={handleSoundToggle}
-                aria-label={soundOn ? "Mute sound effects" : "Enable sound effects"}
-                title={soundOn ? "Mute sound effects" : "Enable sound effects"}
+                aria-label={t(soundOn ? "Mute sound effects" : "Enable sound effects")}
+                title={t(soundOn ? "Mute sound effects" : "Enable sound effects")}
               >
                 {soundOn ? (
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -135,7 +135,7 @@ export default function Navbar() {
 
               <button
                 className="navbar__icon-btn"
-                aria-label="Search dealers and distributors"
+                aria-label={t("Search dealers and distributors")}
                 onClick={() => {
                   setSearchOpen(true);
                   setMobileOpen(false);

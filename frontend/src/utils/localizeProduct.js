@@ -1,15 +1,17 @@
+import { bn } from "../i18n/bn";
+
 // Picks the Bangla version of a product's text fields when the site is
-// set to Bangla and the admin has actually filled one in — falling back
-// to the English field otherwise, so nothing breaks for products that
-// only have the English version filled in.
+// set to Bangla: the admin-entered Bangla field first, then the built-in
+// dictionary (for the standard product range), then the English text.
 export function localizeProduct(product, lang) {
   if (!product) return product;
   if (lang !== "bn") return product;
 
+  const pick = (field) => product[`${field}Bn`] || bn[product[field]] || product[field];
   return {
     ...product,
-    name: product.nameBn || product.name,
-    shortDescription: product.shortDescriptionBn || product.shortDescription,
-    description: product.descriptionBn || product.description,
+    name: pick("name"),
+    shortDescription: pick("shortDescription"),
+    description: pick("description"),
   };
 }

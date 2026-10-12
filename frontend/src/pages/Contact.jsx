@@ -12,7 +12,7 @@ const initialForm = { name: "", email: "", phone: "", subject: "", message: "" }
 export default function Contact() {
   const [form, setForm] = useState(initialForm);
   const [status, setStatus] = useState({ state: "idle", message: "" });
-  const { t } = useLanguage();
+  const { t, n } = useLanguage();
 
   const update = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
 
@@ -79,13 +79,13 @@ export default function Contact() {
             <div className="card tile">
               <div className="tile__icon"><LeafIcon size={20} /></div>
               <h3>{t("Head Office")}</h3>
-              <p style={{ fontWeight: 700, color: "var(--ink-soil)" }}>{site.address}</p>
+              <p style={{ fontWeight: 700, color: "var(--ink-soil)" }}>{t(site.address)}</p>
             </div>
             <div className="card tile">
               <div className="tile__icon"><LeafIcon size={20} /></div>
               <h3>{t("Phone")}</h3>
               <p style={{ fontWeight: 700 }}>
-                <a href={`tel:${site.phone.replace(/\s/g, "")}`}>{site.phone}</a>
+                <a href={`tel:${site.phone.replace(/\s/g, "")}`}>{n(site.phone)}</a>
               </p>
             </div>
             <div className="card tile">

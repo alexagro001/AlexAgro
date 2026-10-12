@@ -51,6 +51,11 @@ router.get("/divisions", async (req, res) => {
 
 router.get("/:id", async (req, res) => {
   try {
+    if (!(process.env.MONGO_URI && require("mongoose").connection.readyState === 1)) {
+      const demoItem = demoData.distributors.find((d) => d._id === req.params.id);
+      if (!demoItem) return res.status(404).json({ message: "Distributor not found" });
+      return res.json(demoItem);
+    }
     const distributor = await Distributor.findById(req.params.id);
     if (!distributor) return res.status(404).json({ message: "Distributor not found" });
     res.json(distributor);

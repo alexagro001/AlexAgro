@@ -40,7 +40,7 @@ export default function About() {
             <h2>{t("Our story")}</h2>
             <p>{t(site.description)}</p>
             <p>
-              {site.name} {t("was founded to give farmers dependable access to safe, effective agricultural inputs. What started as a small crop-health supply effort has grown into a nationwide operation spanning two core wings: Crop Health and Agro Processing, backed by a distribution network of dealers and sales officers.")}
+              {t(site.name)} {t("was founded to give farmers dependable access to safe, effective agricultural inputs. What started as a small crop-health supply effort has grown into a nationwide operation spanning two core wings: Crop Health and Agro Processing, backed by a distribution network of dealers and sales officers.")}
             </p>
             <p>
               {t("We work directly with agronomists and field teams to make sure every product we distribute is appropriate for local growing conditions, and every dealer in our network is equipped to advise farmers on proper use.")}
@@ -61,7 +61,7 @@ export default function About() {
       <section className="section-tight" style={{ textAlign: "center" }}>
         <img
           src="/images/about-company.png"
-          alt="Alex Agro"
+          alt={t("Alex Agro")}
           style={{
             width: 220,
             height: 220,

@@ -3,7 +3,9 @@ const mongoose = require("mongoose");
 const DistributorSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
+    nameBn: { type: String, trim: true }, // optional Bangla name; falls back to `name` if blank
     designation: { type: String, trim: true, default: "Sales Officer" },
+    designationBn: { type: String, trim: true },
     division: { type: String, required: true, trim: true },
     district: { type: String, trim: true },
     territory: { type: String, trim: true },

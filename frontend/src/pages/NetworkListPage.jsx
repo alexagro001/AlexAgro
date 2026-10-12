@@ -14,21 +14,21 @@ const CONFIG = {
     endpoint: "/dealers",
     title: "Dealer List",
     description: "Every registered dealer, plotted where they operate. Tap a pin or a card to reach them.",
-    metaFields: (d) => [d.area, d.district, d.division].filter(Boolean).join(", "),
+    metaFields: (d, t) => [d.area, d.district, d.division].filter(Boolean).map(t).join(", "),
     detailPath: (id) => `/network/dealers/${id}`,
   },
   distributor: {
     endpoint: "/distributors",
     title: "Sales Officer",
     description: "Territory sales officers covering every division — reach yours directly.",
-    metaFields: (d) => [d.designation, d.territory, d.division].filter(Boolean).join(", "),
+    metaFields: (d, t, l) => [l(d, "designation"), d.territory, d.division].filter(Boolean).map(t).join(", "),
     detailPath: (id) => `/network/sales-officers/${id}`,
   },
 };
 
 export default function NetworkListPage({ kind }) {
   const cfg = CONFIG[kind];
-  const { t } = useLanguage();
+  const { t, n, l } = useLanguage();
   const [searchParams] = useSearchParams();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -65,11 +65,13 @@ export default function NetworkListPage({ kind }) {
       const matchesQuery =
         !q ||
         i.name.toLowerCase().includes(q) ||
+        (i.nameBn || "").toLowerCase().includes(q) ||
+        t(i.district || "").includes(q) ||
         (i.district || "").toLowerCase().includes(q) ||
         (i.area || i.territory || "").toLowerCase().includes(q);
       return matchesDivision && matchesQuery;
     });
-  }, [items, division, query]);
+  }, [items, division, query, t]);
 
   return (
     <div>
@@ -82,7 +84,7 @@ export default function NetworkListPage({ kind }) {
             <input
               id="network-search"
               type="text"
-              placeholder="e.g. Bogura, Savar, Karim Agro Center..."
+              placeholder={t("e.g. Bogura, Savar, Karim Agro Center...")}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
@@ -97,17 +99,17 @@ export default function NetworkListPage({ kind }) {
               ) : (
                 <div className="index-list">
                   <div className="index-list__count">
-                    {filtered.length} {kind === "dealer" ? t("Dealer List") : t("Sales Officer")}
+                    {n(filtered.length)} {kind === "dealer" ? t("Dealer List") : t("Sales Officer")}
                   </div>
                   <div className="index-list__scroll">
                     {filtered.map((i) => (
                       <div key={i._id} className="index-row">
                         <span className="index-row__icon"><LeafIcon size={15} /></span>
                         <div className="index-row__main">
-                          <Link to={cfg.detailPath(i._id)} className="index-row__name">{i.name}</Link>
-                          <span className="index-row__meta">{cfg.metaFields(i)}</span>
+                          <Link to={cfg.detailPath(i._id)} className="index-row__name">{l(i, "name")}</Link>
+                          <span className="index-row__meta">{cfg.metaFields(i, t, l)}</span>
                         </div>
-                        {i.phone && <span className="index-row__phone">{i.phone}</span>}
+                        {i.phone && <span className="index-row__phone">{n(i.phone)}</span>}
                         <div className="index-row__actions">
                           <Link to={cfg.detailPath(i._id)} className="index-row__link">{t("View Details")}</Link>
                           {i.link && (

@@ -8,25 +8,29 @@ const WINGS = [
     title: "Crop Health",
     to: "/products/crop-health",
     desc: "Bio-based fungicides, pesticides and crop protection inputs formulated for safe food production.",
-    image: "/images/leaf-strength-arm.jpg",
+    image: "/images/photos/crop-field.jpg",
+    focus: "50% 55%",
   },
   {
     title: "Agro Processing",
     to: "/products/agro-processing",
     desc: "Post-harvest infrastructure and processing support that reduces loss from farm to market.",
-    image: "/images/floating-island-1.jpg",
+    image: "/images/photos/grain-harvest.jpg",
+    focus: "60% 55%",
   },
   {
     title: "Distribution Network",
     to: "/network/dealers",
     desc: "A nationwide web of dealers and sales officers keeping inputs available close to every farm.",
-    image: "/images/floating-island-2.jpg",
+    image: "/images/photos/delivery-truck.jpg",
+    focus: "45% 60%",
   },
   {
     title: "Farmer Support",
     to: "/about",
     desc: "Field-level advisory and training so farmers get the most out of every input we supply.",
-    image: "/images/leaves-falling.jpg",
+    image: "/images/photos/farmer-harvest.jpg",
+    focus: "55% 38%",
   },
 ];
 
@@ -102,7 +106,9 @@ export default function HomeWhatWeDo() {
               </span>
               <span className="wwd__photo" aria-hidden="true">
                 <span className="wwd__shape" />
-                <img src={wing.image} alt="" loading="lazy" className="wwd__img" />
+                <span className="wwd__frame">
+                  <img src={wing.image} alt="" loading="lazy" className="wwd__img" style={{ objectPosition: wing.focus }} />
+                </span>
                 <svg className="wwd__edge" viewBox="0 0 400 160" preserveAspectRatio="none">
                   <path d="M-10 67C70 65 95 23 176 31s125 76 234 52" />
                 </svg>

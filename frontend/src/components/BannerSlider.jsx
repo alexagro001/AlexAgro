@@ -34,7 +34,7 @@ export default function BannerSlider() {
   const [slowLoad, setSlowLoad] = useState(false);
   const [index, setIndex] = useState(0);
   const timerRef = useRef(null);
-  const { t } = useLanguage();
+  const { t, n, l } = useLanguage();
 
   useEffect(() => {
     const refreshBanners = async () => {
@@ -146,13 +146,13 @@ export default function BannerSlider() {
               {isVideo ? (
                 <video className="banner-slide__img" src={b.image} autoPlay muted loop playsInline />
               ) : (
-                <img src={b.image} alt={b.title || `Homepage banner ${i + 1}`} className="banner-slide__img" />
+                <img src={b.image} alt={l(b, "title") || `${t("Homepage banner")} ${n(i + 1)}`} className="banner-slide__img" />
               )}
               <div className="banner-slide__scrim" />
               {(b.title || b.subtitle) && (
                 <div className="banner-slide__copy">
-                  {b.title && <h2>{b.title}</h2>}
-                  {b.subtitle && <p>{b.subtitle}</p>}
+                  {b.title && <h2>{l(b, "title")}</h2>}
+                  {b.subtitle && <p>{l(b, "subtitle")}</p>}
                 </div>
               )}
             </SlideLink>
@@ -162,12 +162,12 @@ export default function BannerSlider() {
 
       {banners.length > 1 && (
         <>
-          <button className="banner-slider__arrow banner-slider__arrow--left" onClick={prev} aria-label="Previous slide">
+          <button className="banner-slider__arrow banner-slider__arrow--left" onClick={prev} aria-label={t("Previous slide")}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M10 2L4 8l6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
-          <button className="banner-slider__arrow banner-slider__arrow--right" onClick={next} aria-label="Next slide">
+          <button className="banner-slider__arrow banner-slider__arrow--right" onClick={next} aria-label={t("Next slide")}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M6 2l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
@@ -179,7 +179,7 @@ export default function BannerSlider() {
                 key={b._id}
                 className={`banner-slider__dot ${i === index ? "is-active" : ""}`}
                 onClick={() => goTo(i, true)}
-                aria-label={`Go to slide ${i + 1}`}
+                aria-label={`${t("Go to slide")} ${n(i + 1)}`}
               />
             ))}
           </div>

@@ -49,7 +49,7 @@ export default function Career() {
     } catch (err) {
       setStatus({
         state: "error",
-        message: err.response?.data?.message || t("Something went wrong. Please try again."),
+        message: err.response?.data?.message ? t(err.response.data.message) : t("Something went wrong. Please try again."),
       });
     }
   };
@@ -74,15 +74,21 @@ export default function Career() {
             </div>
             <div className="field">
               <label htmlFor="cv">{t("CV (PDF or Word, max 5MB)")}</label>
-              <input
-                ref={fileInputRef}
-                id="cv"
-                type="file"
-                accept=".pdf,.doc,.docx"
-                onChange={handleFile}
-                required
-              />
-              {file && <p className="form-note">{file.name}</p>}
+              {/* Custom face for the file input: the browser's own "Choose file"
+                  text can't be translated, so the real input is visually hidden. */}
+              <div className="file-pick">
+                <input
+                  ref={fileInputRef}
+                  id="cv"
+                  className="file-pick__input"
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  onChange={handleFile}
+                  required
+                />
+                <label htmlFor="cv" className="file-pick__button">{t("Choose file")}</label>
+                <span className="file-pick__name">{file ? file.name : t("No file chosen")}</span>
+              </div>
             </div>
 
             <LeafButton type="submit" disabled={status.state === "loading"}>

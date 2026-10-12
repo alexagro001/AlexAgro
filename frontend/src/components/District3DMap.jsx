@@ -77,7 +77,12 @@ function ringToShape(ring, center, scale) {
 export default function District3DMap({ height = 480, onDistrictSelect, counts = {}, highlightDistrict, markerLat, markerLng, markerName }) {
   const containerRef = useRef(null);
   const [status, setStatus] = useState("loading");
-  const { t } = useLanguage();
+  const { t, n } = useLanguage();
+  // Labels live outside React (CSS2D nodes); keep the translators in a ref
+  // and retranslate the existing nodes in place when the language changes.
+  const i18nRef = useRef({ t, n });
+  i18nRef.current = { t, n };
+  const labelNodesRef = useRef([]);
   const countsRef = useRef(counts);
   countsRef.current = counts;
   const highlightRef = useRef(highlightDistrict);
@@ -200,8 +205,11 @@ export default function District3DMap({ height = 480, onDistrictSelect, counts =
           <path d="M8 18C8 18 15 11.5 15 7A7 7 0 101 7C1 11.5 8 18 8 18Z" fill="#E2A335" stroke="#fff" stroke-width="1.2"/>
           <circle cx="8" cy="7" r="2.6" fill="#fff"/>
         </svg>
-        <span class="district3d-pin__count">${count}</span>
+        <span class="district3d-pin__count"></span>
       `;
+      const countEl = el.querySelector(".district3d-pin__count");
+      countEl.textContent = i18nRef.current.n(count);
+      labelNodesRef.current.push({ el: countEl, value: count, kind: "number" });
       const obj = new CSS2DObject(el);
       obj.position.set(centroid.x, centroid.y, EXTRUSION + 0.12);
       group.add(obj);
@@ -245,7 +253,8 @@ export default function District3DMap({ height = 480, onDistrictSelect, counts =
       if (bestArea < minArea) return;
       const el = document.createElement("div");
       el.className = "district3d-label";
-      el.textContent = districtName;
+      el.textContent = i18nRef.current.t(districtName);
+      labelNodesRef.current.push({ el, value: districtName, kind: "text" });
       const obj = new CSS2DObject(el);
       obj.position.set(bestCentroid.x, bestCentroid.y - 0.1, EXTRUSION + 0.08);
       group.add(obj);
@@ -300,10 +309,11 @@ export default function District3DMap({ height = 480, onDistrictSelect, counts =
           lon: (bounds.minLon + bounds.maxLon) / 2,
           lat: (bounds.minLat + bounds.maxLat) / 2,
         };
-        // Only label the larger ~40% of districts by area - showing all 64
+        // Only label districts above a size threshold - showing all 64
         // at once at the default zoom crowds every name into an unreadable
-        // jumble (small, tightly-packed districts especially).
-        const MIN_LABEL_AREA = 0.05;
+        // jumble (small, tightly-packed districts especially). Phone-width
+        // maps have even less room, so only the largest districts get names.
+        const MIN_LABEL_AREA = width < 520 ? 0.3 : width < 800 ? 0.2 : 0.05;
 
         for (const feature of geo.features) {
           if (!feature.geometry) continue;
@@ -398,7 +408,7 @@ export default function District3DMap({ height = 480, onDistrictSelect, counts =
         hovered = next;
         if (hovered) {
           setTarget(hovered, hovered === selected ? SELECTED_LIFT : HOVER_LIFT);
-          tooltipEl.innerHTML = `<strong>${hovered.userData.name}</strong><span>${hovered.userData.division}</span>`;
+          tooltipEl.innerHTML = `<strong>${i18nRef.current.t(hovered.userData.name)}</strong><span>${i18nRef.current.t(hovered.userData.division)}</span>`;
           tooltipEl.classList.add("show");
           renderer.domElement.style.cursor = "pointer";
         } else {
@@ -486,6 +496,12 @@ export default function District3DMap({ height = 480, onDistrictSelect, counts =
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    labelNodesRef.current.forEach(({ el, value, kind }) => {
+      el.textContent = kind === "number" ? n(value) : t(value);
+    });
+  }, [t, n]);
 
   return (
     <div className="district3d" style={{ height }}>

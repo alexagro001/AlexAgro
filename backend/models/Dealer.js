@@ -3,10 +3,12 @@ const mongoose = require("mongoose");
 const DealerSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
+    nameBn: { type: String, trim: true }, // optional Bangla name; falls back to `name` if blank
     division: { type: String, required: true, trim: true }, // e.g. Dhaka, Chattogram
     district: { type: String, trim: true },
     area: { type: String, trim: true }, // upazila / locality
     address: { type: String, trim: true },
+    addressBn: { type: String, trim: true },
     phone: { type: String, trim: true },
     email: { type: String, trim: true, lowercase: true },
     lat: { type: Number, required: true }, // map pin latitude

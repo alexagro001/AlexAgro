@@ -8,7 +8,7 @@ export default function SearchOverlay({ onClose }) {
   const [results, setResults] = useState({ dealers: [], distributors: [] });
   const [loading, setLoading] = useState(false);
   const inputRef = useRef(null);
-  const { t } = useLanguage();
+  const { t, l } = useLanguage();
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -53,7 +53,7 @@ export default function SearchOverlay({ onClose }) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
-            <button className="search-panel__close" onClick={onClose} aria-label="Close search">
+            <button className="search-panel__close" onClick={onClose} aria-label={t("Close search")}>
               &times;
             </button>
           </div>
@@ -74,9 +74,9 @@ export default function SearchOverlay({ onClose }) {
                 onClick={onClose}
               >
                 <div>
-                  <div className="search-result__name">{d.name}</div>
+                  <div className="search-result__name">{l(d, "name")}</div>
                   <div className="search-result__meta">
-                    {[d.area, d.district, d.division].filter(Boolean).join(", ")}
+                    {[d.area, d.district, d.division].filter(Boolean).map(t).join(", ")}
                   </div>
                 </div>
                 <span className="search-result__type">{t("Dealer")}</span>
@@ -92,9 +92,9 @@ export default function SearchOverlay({ onClose }) {
                 onClick={onClose}
               >
                 <div>
-                  <div className="search-result__name">{d.name}</div>
+                  <div className="search-result__name">{l(d, "name")}</div>
                   <div className="search-result__meta">
-                    {[d.designation, d.territory, d.division].filter(Boolean).join(", ")}
+                    {[l(d, "designation"), d.territory, d.division].filter(Boolean).map(t).join(", ")}
                   </div>
                 </div>
                 <span className="search-result__type">{t("Sales Officer")}</span>

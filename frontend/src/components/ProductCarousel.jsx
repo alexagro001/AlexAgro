@@ -119,7 +119,7 @@ export default function ProductCarousel({ products, categoryLabel }) {
           <button
             className="banner-slider__arrow banner-slider__arrow--left"
             onClick={() => goTo((index - 1 + products.length) % products.length, true)}
-            aria-label="Previous product"
+            aria-label={t("Previous product")}
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M10 2L4 8l6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -128,7 +128,7 @@ export default function ProductCarousel({ products, categoryLabel }) {
           <button
             className="banner-slider__arrow banner-slider__arrow--right"
             onClick={() => goTo((index + 1) % products.length, true)}
-            aria-label="Next product"
+            aria-label={t("Next product")}
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M6 2l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -140,7 +140,7 @@ export default function ProductCarousel({ products, categoryLabel }) {
                 key={p._id}
                 className={`banner-slider__dot ${i === index ? "is-active" : ""}`}
                 onClick={() => goTo(i, true)}
-                aria-label={`Show ${p.name}`}
+                aria-label={`${t("Show product")}: ${localizedProducts[i]?.name || p.name}`}
               />
             ))}
           </div>

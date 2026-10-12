@@ -28,7 +28,7 @@ function ContactIcon({ name }) {
 }
 
 export default function Footer() {
-  const { t } = useLanguage();
+  const { t, n } = useLanguage();
 
   return (
     <footer className="footer">
@@ -44,7 +44,7 @@ export default function Footer() {
 
       <div className="footer__inner">
         <div>
-          <h4>{site.name}</h4>
+          <h4>{t(site.name)}</h4>
           <p style={{ color: "rgba(246,241,228,0.7)", fontSize: "0.9rem", maxWidth: 260 }}>
             {t(site.description)}
           </p>
@@ -76,13 +76,13 @@ export default function Footer() {
             <li>
               <a href={site.mapUrl} target="_blank" rel="noreferrer" style={{ fontWeight: 700 }}>
                 <ContactIcon name="map" />
-                {site.address} · {t("Open in Google Maps")}
+                {t(site.address)} · {t("Open in Google Maps")}
               </a>
             </li>
             <li>
               <a href={`tel:${site.phone.replace(/\s/g, "")}`} style={{ fontWeight: 700 }}>
                 <ContactIcon name="phone" />
-                {site.phone}
+                {n(site.phone)}
               </a>
             </li>
             <li>
@@ -102,7 +102,7 @@ export default function Footer() {
       </div>
 
       <div className="footer__bottom">
-        Copyright &copy; {new Date().getFullYear()} {site.legalName}. All rights reserved.
+        {t("Copyright")} &copy; {n(new Date().getFullYear())} {t(site.legalName)}. {t("All rights reserved.")}
       </div>
     </footer>
   );

@@ -1,6 +1,7 @@
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import { normalizeLink } from "../utils/links";
+import { useLanguage } from "../context/LanguageContext";
 
 // Bangladesh's rough geographic center — used as the default map view.
 const BD_CENTER = [23.7, 90.4];
@@ -44,6 +45,7 @@ const distributorIcon = leafIcon("#E2A335");
  * Clicking a pin opens a popup; the popup's "Visit" link redirects to point.link.
  */
 export default function DealerMap({ points = [], height = 460 }) {
+  const { t } = useLanguage();
   const validPoints = points.filter((p) => typeof p.lat === "number" && typeof p.lng === "number");
   const singlePoint = validPoints.length === 1 ? [validPoints[0].lat, validPoints[0].lng] : null;
 
@@ -78,7 +80,7 @@ export default function DealerMap({ points = [], height = 460 }) {
               {p.meta && <div className="map-popup__meta">{p.meta}</div>}
               {p.link && (
                 <a className="map-popup__link" href={normalizeLink(p.link)} target="_blank" rel="noreferrer">
-                  Visit / Contact &rarr;
+                  {t("Visit / Contact")} &rarr;
                 </a>
               )}
             </Popup>

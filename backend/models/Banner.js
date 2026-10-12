@@ -3,7 +3,9 @@ const mongoose = require("mongoose");
 const BannerSchema = new mongoose.Schema(
   {
     title: { type: String, trim: true },
+    titleBn: { type: String, trim: true }, // optional Bangla text; falls back to English if blank
     subtitle: { type: String, trim: true },
+    subtitleBn: { type: String, trim: true },
     image: { type: String, required: true, trim: true },
     link: { type: String, trim: true }, // optional: makes the slide clickable
     order: { type: Number, default: 0 }, // lower numbers show first

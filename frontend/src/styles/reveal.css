@@ -1,0 +1,37 @@
+/* Scroll-reveal (see utils/useScrollReveal.js). Uses the standalone
+   `translate` property and a from-only keyframe, so each element's own
+   transform, opacity, transition and hover effects stay untouched. */
+[data-sr="pending"] {
+  opacity: 0;
+}
+
+[data-sr="in"] {
+  animation: sr-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--sr-delay, 0ms) backwards;
+}
+
+@keyframes sr-in {
+  from {
+    opacity: 0;
+    translate: 0 28px;
+  }
+}
+
+/* Shorter travel on small screens so nothing slides in from off-canvas. */
+@media (max-width: 640px) {
+  [data-sr="in"] {
+    animation-duration: 0.55s;
+  }
+  @keyframes sr-in {
+    from {
+      opacity: 0;
+      translate: 0 18px;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-sr] {
+    opacity: 1 !important;
+    animation: none !important;
+  }
+}

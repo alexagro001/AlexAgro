@@ -65,7 +65,8 @@ export const resourceConfigs = {
     onFieldChange: dealerFieldChange,
     columns: ["name", "division", "district", "phone", "isActive"],
     fields: [
-      { name: "name", label: "Dealer / shop name", type: "text", required: true },
+      { name: "name", label: "Dealer / shop name (English)", type: "text", required: true },
+      { name: "nameBn", label: "Dealer / shop name (বাংলা) — optional", type: "text" },
       ...locationFields,
       {
         name: "area",
@@ -73,7 +74,8 @@ export const resourceConfigs = {
         type: "select",
         dynamicOptions: (form) => upazilasByDistrict[form.district] || [],
       },
-      { name: "address", label: "Full address", type: "text" },
+      { name: "address", label: "Full address (English)", type: "text" },
+      { name: "addressBn", label: "Full address (বাংলা) — optional", type: "text" },
       { name: "phone", label: "Phone", type: "text" },
       { name: "email", label: "Email", type: "text" },
       { name: "lat", label: "Latitude", type: "number", required: true },
@@ -93,8 +95,10 @@ export const resourceConfigs = {
     onFieldChange: distributorFieldChange,
     columns: ["name", "designation", "division", "territory", "isActive"],
     fields: [
-      { name: "name", label: "Full name", type: "text", required: true },
-      { name: "designation", label: "Designation", type: "text", default: "Sales Officer" },
+      { name: "name", label: "Full name (English)", type: "text", required: true },
+      { name: "nameBn", label: "Full name (বাংলা) — optional", type: "text" },
+      { name: "designation", label: "Designation (English)", type: "text", default: "Sales Officer" },
+      { name: "designationBn", label: "Designation (বাংলা) — optional", type: "text" },
       ...locationFields,
       {
         name: "territory",
@@ -147,8 +151,10 @@ export const resourceConfigs = {
     columns: ["order", "title", "type", "isActive"],
     fields: [
       { name: "type", label: "Type", type: "select", options: ["photo", "video"], required: true },
-      { name: "title", label: "Title", type: "text", required: true },
-      { name: "description", label: "Description (optional)", type: "textarea" },
+      { name: "title", label: "Title (English)", type: "text", required: true },
+      { name: "titleBn", label: "Title (বাংলা) — optional", type: "text" },
+      { name: "description", label: "Description (English, optional)", type: "textarea" },
+      { name: "descriptionBn", label: "Description (বাংলা) — optional", type: "textarea" },
       {
         name: "url",
         label: "Photo / video (upload, or paste a YouTube/Vimeo embed URL)",
@@ -173,8 +179,10 @@ export const resourceConfigs = {
     singular: "Banner",
     columns: ["order", "title", "isActive"],
     fields: [
-      { name: "title", label: "Headline", type: "text" },
-      { name: "subtitle", label: "Supporting text", type: "text" },
+      { name: "title", label: "Headline (English)", type: "text" },
+      { name: "titleBn", label: "Headline (বাংলা) — optional", type: "text" },
+      { name: "subtitle", label: "Supporting text (English)", type: "text" },
+      { name: "subtitleBn", label: "Supporting text (বাংলা) — optional", type: "text" },
       { name: "image", label: "Banner image or video (wide, e.g. 1600x620px)", type: "media", accept: "image/*,video/*", required: true },
       { name: "link", label: "Link when clicked (optional)", type: "text" },
       { name: "order", label: "Slide order (0 = first)", type: "number" },

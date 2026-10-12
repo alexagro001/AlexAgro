@@ -10,7 +10,7 @@ import { playClickSound } from "../utils/sound";
  * list shown below it.
  */
 export default function DivisionMap({ selected, onSelect, counts = {} }) {
-  const { t } = useLanguage();
+  const { t, n } = useLanguage();
 
   const handleSelect = (name) => {
     playClickSound();
@@ -39,7 +39,7 @@ export default function DivisionMap({ selected, onSelect, counts = {} }) {
             onClick={() => handleSelect(name)}
           >
             <span className="bd-shape__dot">
-              {typeof counts[name] === "number" && <em>{counts[name]}</em>}
+              {typeof counts[name] === "number" && <em>{n(counts[name])}</em>}
             </span>
             <span className="bd-shape__label">{t(name)}</span>
           </button>

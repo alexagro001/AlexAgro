@@ -9,7 +9,7 @@ export default function NewsEventsSection() {
   const [items, setItems] = useState([]);
   const [lightboxItem, setLightboxItem] = useState(null);
   const trackRef = useRef(null);
-  const { t } = useLanguage();
+  const { t, l, formatDate } = useLanguage();
 
   useEffect(() => {
     api
@@ -44,7 +44,7 @@ export default function NewsEventsSection() {
             type="button"
             className="banner-slider__arrow banner-slider__arrow--left news-carousel__arrow"
             onClick={() => scroll(-1)}
-            aria-label="Scroll news left"
+            aria-label={t("Scroll news left")}
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M10 2L4 8l6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -67,7 +67,7 @@ export default function NewsEventsSection() {
                   {item.type === "video" ? (
                     item.thumbnail ? (
                       <>
-                        <img src={item.thumbnail} alt={item.title} />
+                        <img src={item.thumbnail} alt={l(item, "title")} />
                         <span className="news-card__play">
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M8 5v14l11-7z" />
@@ -82,18 +82,18 @@ export default function NewsEventsSection() {
                       </svg>
                     )
                   ) : item.url ? (
-                    <img src={item.url} alt={item.title} />
+                    <img src={item.url} alt={l(item, "title")} />
                   ) : (
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
                       <path d="M12 21C6 16,5 10,12 3 C19 10,18 16,12 21Z" stroke="currentColor" strokeWidth="1.5" />
                     </svg>
                   )}
                   <span className="news-card__date">
-                    {new Date(item.createdAt).toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" })}
+                    {formatDate(item.createdAt, { day: "2-digit", month: "short", year: "numeric" })}
                   </span>
                 </div>
                 <div className="news-card__body">
-                  <h3>{item.title}</h3>
+                  <h3>{l(item, "title")}</h3>
                 </div>
               </div>
             ))}
@@ -103,7 +103,7 @@ export default function NewsEventsSection() {
             type="button"
             className="banner-slider__arrow banner-slider__arrow--right news-carousel__arrow"
             onClick={() => scroll(1)}
-            aria-label="Scroll news right"
+            aria-label={t("Scroll news right")}
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M6 2l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -116,8 +116,8 @@ export default function NewsEventsSection() {
       {lightboxItem && (
         <Lightbox
           image={lightboxItem.type === "video" ? lightboxItem.thumbnail : lightboxItem.url}
-          title={lightboxItem.title}
-          description={lightboxItem.description}
+          title={l(lightboxItem, "title")}
+          description={l(lightboxItem, "description")}
           onClose={() => setLightboxItem(null)}
         />
       )}

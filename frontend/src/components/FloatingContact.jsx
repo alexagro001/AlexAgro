@@ -27,7 +27,7 @@ export default function FloatingContact() {
           <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <path d="M10 18C10 18 16 12.5 16 8A6 6 0 104 8C4 12.5 10 18 10 18Z" fill="#fff" />
           </svg>
-          Alex Agro
+          {t("Alex Agro")}
         </span>
         <span className="floating-contact__cta">{t("Contact Us")}</span>
       </button>

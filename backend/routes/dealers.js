@@ -53,6 +53,11 @@ router.get("/divisions", async (req, res) => {
 // GET /api/dealers/:id
 router.get("/:id", async (req, res) => {
   try {
+    if (!(process.env.MONGO_URI && require("mongoose").connection.readyState === 1)) {
+      const demoItem = demoData.dealers.find((d) => d._id === req.params.id);
+      if (!demoItem) return res.status(404).json({ message: "Dealer not found" });
+      return res.json(demoItem);
+    }
     const dealer = await Dealer.findById(req.params.id);
     if (!dealer) return res.status(404).json({ message: "Dealer not found" });
     res.json(dealer);

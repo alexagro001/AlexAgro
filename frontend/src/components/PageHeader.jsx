@@ -12,7 +12,7 @@ export default function PageHeader({ eyebrow, title, description }) {
           type="button"
           className="page-header__back"
           onClick={() => navigate(-1)}
-          aria-label="Go back"
+          aria-label={t("Go back")}
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
             <path d="M8.5 2.5L3 8l5.5 5.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />

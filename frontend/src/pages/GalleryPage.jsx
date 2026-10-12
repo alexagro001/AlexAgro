@@ -8,7 +8,7 @@ export default function GalleryPage({ type }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [lightboxItem, setLightboxItem] = useState(null);
-  const { t } = useLanguage();
+  const { t, l } = useLanguage();
 
   useEffect(() => {
     setLoading(true);
@@ -49,7 +49,7 @@ export default function GalleryPage({ type }) {
                     <div style={{ aspectRatio: "16/9" }}>
                       <iframe
                         src={item.url}
-                        title={item.title}
+                        title={l(item, "title")}
                         style={{ width: "100%", height: "100%", border: "none" }}
                         allowFullScreen
                       />
@@ -61,7 +61,7 @@ export default function GalleryPage({ type }) {
                     onClick={() => item.url && setLightboxItem(item)}
                   >
                     {item.url ? (
-                      <img src={item.url} alt={item.title} />
+                      <img src={item.url} alt={l(item, "title")} />
                     ) : (
                       <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
                         <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" strokeWidth="1.5" />
@@ -72,10 +72,10 @@ export default function GalleryPage({ type }) {
                   </div>
                 )}
                 <div style={{ padding: "14px 16px" }}>
-                  <h3 style={{ fontSize: "1rem" }}>{item.title}</h3>
+                  <h3 style={{ fontSize: "1rem" }}>{l(item, "title")}</h3>
                   {item.description && (
                     <p style={{ fontSize: "0.85rem", color: "var(--ink-soil-60)", marginTop: 4 }}>
-                      {item.description}
+                      {l(item, "description")}
                     </p>
                   )}
                 </div>
@@ -88,8 +88,8 @@ export default function GalleryPage({ type }) {
       {lightboxItem && (
         <Lightbox
           image={lightboxItem.url}
-          title={lightboxItem.title}
-          description={lightboxItem.description}
+          title={l(lightboxItem, "title")}
+          description={l(lightboxItem, "description")}
           onClose={() => setLightboxItem(null)}
         />
       )}

@@ -7,6 +7,7 @@ import "./styles/leaf.css";
 import "./styles/components.css";
 import "./styles/home-refresh.css";
 import "./styles/admin.css";
+import "./styles/reveal.css";
 import App from "./App.jsx";
 
 createRoot(document.getElementById("root")).render(

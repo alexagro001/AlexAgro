@@ -15,7 +15,7 @@ import api from "../api/axios";
 const District3DMap = lazy(() => import("../components/District3DMap"));
 
 export default function Home() {
-  const { t } = useLanguage();
+  const { t, n } = useLanguage();
   const navigate = useNavigate();
   const taglineRef = useRef(null);
   const [districtCounts, setDistrictCounts] = useState({});
@@ -94,19 +94,19 @@ export default function Home() {
       <section className="stat-strip">
         <div className="stat-strip__inner">
           <div>
-            <div className="stat-strip__num">{counts.dealers || "—"}</div>
+            <div className="stat-strip__num">{counts.dealers ? n(counts.dealers) : "—"}</div>
             <div className="stat-strip__label">{t("Active Dealers")}</div>
           </div>
           <div>
-            <div className="stat-strip__num">{counts.distributors || "—"}</div>
+            <div className="stat-strip__num">{counts.distributors ? n(counts.distributors) : "—"}</div>
             <div className="stat-strip__label">{t("Sales Officers")}</div>
           </div>
           <div>
-            <div className="stat-strip__num">{counts.divisions || "—"}</div>
+            <div className="stat-strip__num">{counts.divisions ? n(counts.divisions) : "—"}</div>
             <div className="stat-strip__label">{t("Divisions Covered")}</div>
           </div>
           <div>
-            <div className="stat-strip__num">2</div>
+            <div className="stat-strip__num">{n(2)}</div>
             <div className="stat-strip__label">{t("Business Wings")}</div>
           </div>
         </div>

@@ -3,9 +3,11 @@ import { useEffect } from "react";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import FloatingContact from "./FloatingContact";
+import useScrollReveal from "../utils/useScrollReveal";
 
 export default function PublicLayout() {
   const { pathname } = useLocation();
+  useScrollReveal();
 
   useEffect(() => {
     window.scrollTo(0, 0);
