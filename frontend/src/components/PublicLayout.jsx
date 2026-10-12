@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import FloatingContact from "./FloatingContact";
+import ScrollProgress from "./ScrollProgress";
 import useScrollReveal from "../utils/useScrollReveal";
 
 export default function PublicLayout() {
@@ -15,6 +16,7 @@ export default function PublicLayout() {
 
   return (
     <>
+      <ScrollProgress />
       <Navbar />
       <main>
         <Outlet />

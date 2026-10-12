@@ -1,37 +1,83 @@
-/* Scroll-reveal (see utils/useScrollReveal.js). Uses the standalone
-   `translate` property and a from-only keyframe, so each element's own
-   transform, opacity, transition and hover effects stay untouched. */
+/* Scroll-reveal (see utils/useScrollReveal.js). Each effect uses the
+   standalone translate/scale properties and a from-only keyframe, so the
+   element's own transform, opacity, transition and hover effects stay
+   untouched once it has arrived. */
+:root {
+  --sr-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --sr-shift: 56px;
+}
+
 [data-sr="pending"] {
   opacity: 0;
 }
 
 [data-sr="in"] {
-  animation: sr-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--sr-delay, 0ms) backwards;
+  animation: sr-fade 0.9s var(--sr-ease) var(--sr-delay, 0ms) backwards;
+}
+[data-sr="in"][data-sr-fx="rise"] { animation-name: sr-rise; animation-duration: 1s; }
+[data-sr="in"][data-sr-fx="left"] { animation-name: sr-left; }
+[data-sr="in"][data-sr-fx="right"] { animation-name: sr-right; }
+[data-sr="in"][data-sr-fx="zoom"] { animation-name: sr-zoom; animation-duration: 1s; }
+[data-sr="in"][data-sr-fx="pop"] { animation-name: sr-pop; animation-duration: 0.8s; }
+[data-sr="in"][data-sr-fx="reveal"] { animation-name: sr-reveal; animation-duration: 1.1s; }
+
+/* Gentle lift */
+@keyframes sr-fade {
+  from { opacity: 0; translate: 0 26px; }
+}
+/* Headings: rise out of a soft blur */
+@keyframes sr-rise {
+  from { opacity: 0; translate: 0 40px; filter: blur(8px); }
+}
+/* Cards alternate in from the left and right */
+@keyframes sr-left {
+  from { opacity: 0; translate: calc(var(--sr-shift) * -1) 18px; rotate: -1.5deg; }
+}
+@keyframes sr-right {
+  from { opacity: 0; translate: var(--sr-shift) 18px; rotate: 1.5deg; }
+}
+/* Large blocks (carousels, maps, forms) grow into place */
+@keyframes sr-zoom {
+  from { opacity: 0; scale: 0.9; translate: 0 34px; }
+}
+/* Stat numbers pop */
+@keyframes sr-pop {
+  from { opacity: 0; scale: 0.55; }
+  60% { scale: 1.06; }
+}
+/* Photos unveil top-down while settling from a slight zoom */
+@keyframes sr-reveal {
+  from { opacity: 0; scale: 1.12; clip-path: inset(0 0 100% 0); }
+  to { clip-path: inset(0 0 0 0); }
 }
 
-@keyframes sr-in {
-  from {
-    opacity: 0;
-    translate: 0 28px;
-  }
-}
-
-/* Shorter travel on small screens so nothing slides in from off-canvas. */
+/* Phones: shorter travel so nothing swings in from far off-screen. */
 @media (max-width: 640px) {
-  [data-sr="in"] {
-    animation-duration: 0.55s;
-  }
-  @keyframes sr-in {
-    from {
-      opacity: 0;
-      translate: 0 18px;
-    }
-  }
+  :root { --sr-shift: 32px; }
+  [data-sr="in"] { animation-duration: 0.75s; }
 }
 
+/* Reduced-motion users still see content arrive, just without movement. */
 @media (prefers-reduced-motion: reduce) {
-  [data-sr] {
-    opacity: 1 !important;
-    animation: none !important;
+  [data-sr="in"],
+  [data-sr="in"][data-sr-fx] {
+    animation: sr-fade-only 0.6s ease var(--sr-delay, 0ms) backwards !important;
   }
+}
+@keyframes sr-fade-only {
+  from { opacity: 0; }
+}
+
+/* Reading-progress bar along the top edge (components/ScrollProgress.jsx). */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 2000;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, #8fbf3f, #1f7a3f 55%, #e2a335);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  pointer-events: none;
 }

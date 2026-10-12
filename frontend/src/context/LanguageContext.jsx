@@ -15,7 +15,7 @@ const toBnDigits = (value) => String(value).replace(/\d/g, (d) => BN_DIGITS[d]);
 
 const TITLES = {
   en: "Alex Agro — Your Crops Friend",
-  bn: "অ্যালেক্স অ্যাগ্রো — আপনার ফসলের বন্ধু",
+  bn: "এলেক্স এগ্রো — আপনার ফসলের বন্ধু",
 };
 
 // Looks a string up in the dictionary; comma-separated place lists such as

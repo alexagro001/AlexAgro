@@ -7,7 +7,7 @@ export const bn = {
   // Brand strings
   "Your Crops Friend": "আপনার ফসলের বন্ধু",
   "ALEX AGRO is a premium agricultural conglomerate dedicated to restoring organic life to global crop soils.":
-    "অ্যালেক্স অ্যাগ্রো একটি শীর্ষস্থানীয় কৃষি প্রতিষ্ঠান, যা বিশ্বের ফসলের মাটিতে প্রাণ ফিরিয়ে আনতে নিবেদিত।",
+    "এলেক্স এগ্রো একটি শীর্ষস্থানীয় কৃষি প্রতিষ্ঠান, যা বিশ্বের ফসলের মাটিতে প্রাণ ফিরিয়ে আনতে নিবেদিত।",
 
   // Navbar
   "Agro-Inputs & Farmer Services": "কৃষি উপকরণ ও কৃষক সেবা",
@@ -262,8 +262,8 @@ export const bn = {
   "Latest from the field": "মাঠ থেকে সর্বশেষ",
 
   // Brand & contact details
-  "Alex Agro": "অ্যালেক্স অ্যাগ্রো",
-  "Alex Agro Limited": "অ্যালেক্স অ্যাগ্রো লিমিটেড",
+  "Alex Agro": "এলেক্স এগ্রো",
+  "Alex Agro Limited": "এলেক্স এগ্রো লিমিটেড",
   "Level 6, Agribari Bhaban, Tejgaon Industrial Area, Dhaka-1208": "লেভেল ৬, অ্যাগ্রিবাড়ি ভবন, তেজগাঁও শিল্প এলাকা, ঢাকা-১২০৮",
   Copyright: "কপিরাইট",
   "All rights reserved.": "সর্বস্বত্ব সংরক্ষিত।",
@@ -287,7 +287,7 @@ export const bn = {
   "No file chosen": "কোনো ফাইল বাছাই করা হয়নি",
   "Loading...": "লোড হচ্ছে...",
   "Not found": "পাওয়া যায়নি",
-  "e.g. Bogura, Savar, Karim Agro Center...": "যেমন: বগুড়া, সাভার, করিম অ্যাগ্রো সেন্টার...",
+  "e.g. Bogura, Savar, Karim Agro Center...": "যেমন: বগুড়া, সাভার, করিম এগ্রো সেন্টার...",
   Improved: "বর্ধিত",
   "Soil Fertility": "মাটির উর্বরতা",
   Higher: "অধিক",
@@ -353,21 +353,21 @@ export const bn = {
   // Sample dealers and sales officers (from seed data)
   "Ananta Bandhu Bhandar": "অনন্ত বন্ধু ভান্ডার",
   "Chattogram Coast Supplies": "চট্টগ্রাম কোস্ট সাপ্লাইজ",
-  "Dhaka Valley Agro": "ঢাকা ভ্যালি অ্যাগ্রো",
+  "Dhaka Valley Agro": "ঢাকা ভ্যালি এগ্রো",
   "Fatema Khatun": "ফাতেমা খাতুন",
   "Green Field Traders": "গ্রিন ফিল্ড ট্রেডার্স",
   "Jashore Krishi Store": "যশোর কৃষি স্টোর",
-  "Karim Agro Center": "করিম অ্যাগ্রো সেন্টার",
+  "Karim Agro Center": "করিম এগ্রো সেন্টার",
   "Md. Kamal Hossain": "মো. কামাল হোসেন",
-  "Mymensingh Agro Traders": "ময়মনসিংহ অ্যাগ্রো ট্রেডার্স",
+  "Mymensingh Agro Traders": "ময়মনসিংহ এগ্রো ট্রেডার্স",
   "Nasrin Akter": "নাসরিন আক্তার",
-  "North Bengal Agro Links": "নর্থ বেঙ্গল অ্যাগ্রো লিংকস",
+  "North Bengal Agro Links": "নর্থ বেঙ্গল এগ্রো লিংকস",
   "Palli Krishi Bhandar": "পল্লী কৃষি ভান্ডার",
   "Rafiqul Islam": "রফিকুল ইসলাম",
   "Rahim Uddin": "রহিম উদ্দিন",
   "Shahin Alam": "শাহীন আলম",
-  "Sylhet Green Agro": "সিলেট গ্রিন অ্যাগ্রো",
-  "Uttaran Agro House": "উত্তরণ অ্যাগ্রো হাউস",
+  "Sylhet Green Agro": "সিলেট গ্রিন এগ্রো",
+  "Uttaran Agro House": "উত্তরণ এগ্রো হাউস",
   "Regional Sales Officer": "আঞ্চলিক সেলস অফিসার",
   "Territory Sales Officer": "টেরিটরি সেলস অফিসার",
   Dhanmondi: "ধানমন্ডি",
