@@ -4,6 +4,7 @@ const cors = require("cors");
 const path = require("path");
 const connectDB = require("./config/db");
 const Admin = require("./models/Admin");
+const adminAccess = require("./config/adminAccess");
 
 const authRoutes = require("./routes/auth");
 const dealerRoutes = require("./routes/dealers");
@@ -76,18 +77,22 @@ app.use((err, req, res, next) => {
 // ---- Boot ----
 const PORT = process.env.PORT || 5000;
 
-async function ensureDefaultAdmin() {
-  const existing = await Admin.countDocuments();
-  if (existing > 0) return;
+// Makes sure the admin from config/adminAccess.js exists and, when its
+// passwordVersion was bumped in code, applies the new password hash.
+// updateOne skips the model's pre-save hook, so the hash is stored as-is.
+async function syncCodeAdmin() {
+  const admin = await Admin.findOne({ username: adminAccess.username });
+  if (admin && admin.passwordVersion >= adminAccess.passwordVersion) return;
 
-  const username = (process.env.ADMIN_DEFAULT_USERNAME || "admin").toLowerCase();
-  const password = process.env.ADMIN_DEFAULT_PASSWORD || "change-me-now";
-  const email = process.env.ADMIN_DEFAULT_EMAIL || "";
-
-  await Admin.create({ name: "Admin", username, password, email, role: "superadmin" });
-  console.log(
-    `No admin found -> created default admin "${username}". Log in and change the password immediately.`
+  await Admin.updateOne(
+    { username: adminAccess.username },
+    {
+      $set: { password: adminAccess.passwordHash, passwordVersion: adminAccess.passwordVersion },
+      $setOnInsert: { name: "Admin", role: "superadmin" },
+    },
+    { upsert: true }
   );
+  console.log(`Admin "${adminAccess.username}" password synced from config/adminAccess.js.`);
 }
 
 async function start() {
@@ -95,25 +100,23 @@ async function start() {
   app.locals.demoMode = !dbReady;
 
   if (dbReady) {
-    await ensureDefaultAdmin();
+    await syncCodeAdmin();
   } else {
-    app.locals.demoAuthEnabled =
-      process.env.NODE_ENV !== "production" && Boolean(process.env.DEMO_ADMIN_PASSWORD);
+    app.locals.demoAuthEnabled = process.env.NODE_ENV !== "production";
     app.locals.demoAdmin = {
       id: "demo-admin",
       name: "Admin",
-      username: (process.env.DEMO_ADMIN_USERNAME || "admin").toLowerCase(),
+      username: adminAccess.username,
       role: "superadmin",
     };
-    app.locals.demoAdminPassword = process.env.DEMO_ADMIN_PASSWORD;
+    // Same login as live: one admin password everywhere, from config/adminAccess.js.
+    app.locals.demoAdminPasswordHash = adminAccess.passwordHash;
     if (!process.env.JWT_SECRET) {
       process.env.JWT_SECRET = require("crypto").randomBytes(48).toString("hex");
     }
     console.log("Demo mode enabled: public API endpoints will serve bundled sample data.");
     if (app.locals.demoAuthEnabled) {
       console.log(`Local demo admin login enabled (username: ${app.locals.demoAdmin.username}).`);
-    } else if (process.env.NODE_ENV !== "production") {
-      console.warn("Local demo admin login disabled; set DEMO_ADMIN_PASSWORD to enable it.");
     }
   }
 

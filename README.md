@@ -29,9 +29,12 @@ starts both servers together:
 - Admin panel → http://localhost:5173/admin/login
 - API → http://localhost:5000
 
-**First login:** username `admin`, password `change-me-now` (set in
-`backend/.env` as `ADMIN_DEFAULT_USERNAME` / `ADMIN_DEFAULT_PASSWORD`) —
-change the password from the admin panel right after logging in.
+**Admin login:** username `admin`. The password is the same on localhost and
+live; only its bcrypt hash is stored, in `backend/config/adminAccess.js` (ask
+the site owner for it). Forgot it? Use **Forgot password?** on the login page
+with the recovery key. To change it from code: `node backend/hashSecret.js
+"new-password"`, paste the hash into `adminAccess.js` and bump
+`passwordVersion`.
 
 Want sample dealers/products so the site isn't empty while you explore?
 

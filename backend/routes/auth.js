@@ -1,7 +1,9 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 const rateLimit = require("express-rate-limit");
 const Admin = require("../models/Admin");
+const adminAccess = require("../config/adminAccess");
 const { requireAuth } = require("../middleware/auth");
 
 const router = express.Router();
@@ -11,6 +13,13 @@ const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 20,
   message: { message: "Too many login attempts. Please try again later." },
+});
+
+// Recovery keys are long, but still cap guesses tightly.
+const resetLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: { message: "Too many reset attempts. Please try again later." },
 });
 
 function signToken(admin) {
@@ -31,7 +40,7 @@ router.post("/login", loginLimiter, async (req, res) => {
       const admin = req.app.locals.demoAdmin;
       if (
         username.trim().toLowerCase() !== admin.username ||
-        password !== req.app.locals.demoAdminPassword
+        !(await bcrypt.compare(password, req.app.locals.demoAdminPasswordHash))
       ) {
         return res.status(401).json({ message: "Invalid username or password" });
       }
@@ -85,6 +94,14 @@ router.put("/change-password", requireAuth, async (req, res) => {
       return res.status(400).json({ message: "New password must be at least 6 characters" });
     }
 
+    if (req.app.locals.demoAuthEnabled) {
+      if (!(await bcrypt.compare(currentPassword, req.app.locals.demoAdminPasswordHash))) {
+        return res.status(400).json({ message: "Current password is incorrect" });
+      }
+      req.app.locals.demoAdminPasswordHash = await bcrypt.hash(newPassword, 10);
+      return res.json({ message: "Password updated for this local session (resets when the server restarts)." });
+    }
+
     const admin = await Admin.findById(req.admin._id).select("+password");
     if (!admin) {
       return res.status(404).json({ message: "Admin account not found" });
@@ -112,6 +129,43 @@ router.put("/change-password", requireAuth, async (req, res) => {
     res.json({ message: "Password updated successfully. Use your new password next time you log in." });
   } catch (err) {
     res.status(500).json({ message: "Could not update password", error: err.message });
+  }
+});
+
+// POST /api/auth/reset-password -> "Forgot password?" on the login page.
+// Proves ownership with the recovery key from config/adminAccess.js instead
+// of email, so it works even when SMTP isn't configured.
+router.post("/reset-password", resetLimiter, async (req, res) => {
+  try {
+    const { username, recoveryKey, newPassword } = req.body;
+    if (!username || !recoveryKey || !newPassword) {
+      return res.status(400).json({ message: "Username, recovery key and new password are required" });
+    }
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: "New password must be at least 6 characters" });
+    }
+
+    const keyOk = await bcrypt.compare(recoveryKey.trim(), adminAccess.recoveryKeyHash);
+    const name = username.trim().toLowerCase();
+
+    if (req.app.locals.demoAuthEnabled) {
+      if (!keyOk || name !== req.app.locals.demoAdmin.username) {
+        return res.status(400).json({ message: "Invalid username or recovery key" });
+      }
+      req.app.locals.demoAdminPasswordHash = await bcrypt.hash(newPassword, 10);
+      return res.json({ message: "Password reset. You can sign in now." });
+    }
+
+    const admin = keyOk ? await Admin.findOne({ username: name }).select("+password") : null;
+    if (!admin) {
+      return res.status(400).json({ message: "Invalid username or recovery key" });
+    }
+
+    admin.password = newPassword;
+    await admin.save();
+    res.json({ message: "Password reset. You can sign in now." });
+  } catch (err) {
+    res.status(500).json({ message: "Could not reset password", error: err.message });
   }
 });
 

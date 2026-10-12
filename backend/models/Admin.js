@@ -8,6 +8,8 @@ const AdminSchema = new mongoose.Schema(
     email: { type: String, trim: true, lowercase: true },
     password: { type: String, required: true, select: false },
     role: { type: String, enum: ["superadmin", "editor"], default: "superadmin" },
+    // Last config/adminAccess.js passwordVersion applied to this account.
+    passwordVersion: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
