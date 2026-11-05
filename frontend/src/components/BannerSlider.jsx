@@ -6,9 +6,29 @@ import { useLanguage } from "../context/LanguageContext";
 import { normalizeLink } from "../utils/links";
 
 const AUTO_ADVANCE_MS = 5000;
+const CACHE_KEY = "alexagro_banners";
 
 function sortBanners(items) {
   return [...items].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+}
+
+// The last banner list, so repeat visits paint instantly while the API (maybe cold) answers.
+function readCachedBanners() {
+  try {
+    return JSON.parse(localStorage.getItem(CACHE_KEY)) || [];
+  } catch {
+    return [];
+  }
+}
+
+function cacheBanners(list) {
+  // Inline base64 images are megabytes each; too big to keep in localStorage.
+  if (list.some((b) => b.image?.startsWith("data:"))) return;
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(list));
+  } catch {
+    // storage full or blocked: skip the cache, the live list still renders
+  }
 }
 
 function SlideLink({ link, children }) {
@@ -29,12 +49,21 @@ function SlideLink({ link, children }) {
 }
 
 export default function BannerSlider() {
-  const [banners, setBanners] = useState([]);
+  const [banners, setBanners] = useState(readCachedBanners);
   const [loading, setLoading] = useState(true);
   const [slowLoad, setSlowLoad] = useState(false);
   const [index, setIndex] = useState(0);
+  // Slides whose image/video is mounted: the current one and the next, so later
+  // slides don't compete with the first image for bandwidth on page load.
+  const [seen, setSeen] = useState(() => new Set([0]));
   const timerRef = useRef(null);
   const { t, n, l } = useLanguage();
+
+  useEffect(() => {
+    if (banners.length === 0) return;
+    const next = (index + 1) % banners.length;
+    setSeen((s) => (s.has(index) && s.has(next) ? s : new Set(s).add(index).add(next)));
+  }, [index, banners.length]);
 
   useEffect(() => {
     const refreshBanners = async () => {
@@ -42,6 +71,7 @@ export default function BannerSlider() {
         const res = await api.get("/banners", { params: { active: "true" }, timeout: 20000 });
         const ordered = sortBanners(res.data);
         setBanners(ordered);
+        cacheBanners(ordered);
         setIndex((current) => Math.min(current, Math.max(ordered.length - 1, 0)));
       } catch (err) {
         console.error("Failed to refresh homepage banners", err);
@@ -70,6 +100,7 @@ export default function BannerSlider() {
         if (!cancelled) {
           const ordered = sortBanners(res.data);
           setBanners(ordered);
+          cacheBanners(ordered);
           setIndex((current) => Math.min(current, Math.max(ordered.length - 1, 0)));
           setLoading(false);
         }
@@ -115,7 +146,7 @@ export default function BannerSlider() {
   const prev = () => goTo((index - 1 + banners.length) % banners.length, true);
   const next = () => goTo((index + 1) % banners.length, true);
 
-  if (loading) {
+  if (loading && banners.length === 0) {
     return (
       <div className="banner-slider banner-slider--skeleton" aria-hidden="true">
         <div className="banner-slider__shimmer" />
@@ -130,6 +161,7 @@ export default function BannerSlider() {
     <div className="banner-slider">
       {banners.map((b, i) => {
         const isVideo = /\.(mp4|webm|ogg|mov)$/i.test(b.image);
+        const show = seen.has(i);
         return (
           <div
             key={b._id}
@@ -139,15 +171,22 @@ export default function BannerSlider() {
             <SlideLink link={b.link}>
               <div
                 className="banner-slide__backdrop"
-                style={!isVideo ? { backgroundImage: `url(${b.image})` } : undefined}
+                style={show && !isVideo ? { backgroundImage: `url(${b.image})` } : undefined}
               >
-                {isVideo && <video src={b.image} autoPlay muted loop playsInline />}
+                {show && isVideo && <video src={b.image} autoPlay muted loop playsInline />}
               </div>
-              {isVideo ? (
-                <video className="banner-slide__img" src={b.image} autoPlay muted loop playsInline />
-              ) : (
-                <img src={b.image} alt={l(b, "title") || `${t("Homepage banner")} ${n(i + 1)}`} className="banner-slide__img" />
-              )}
+              {show &&
+                (isVideo ? (
+                  <video className="banner-slide__img" src={b.image} autoPlay muted loop playsInline />
+                ) : (
+                  <img
+                    src={b.image}
+                    alt={l(b, "title") || `${t("Homepage banner")} ${n(i + 1)}`}
+                    className="banner-slide__img"
+                    fetchPriority={i === 0 ? "high" : "low"}
+                    decoding="async"
+                  />
+                ))}
               <div className="banner-slide__scrim" />
               {(b.title || b.subtitle) && (
                 <div className="banner-slide__copy">
