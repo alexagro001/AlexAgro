@@ -16,6 +16,7 @@ const careerApplicationRoutes = require("./routes/careerApplications");
 const contactRoutes = require("./routes/contact");
 const uploadRoutes = require("./routes/upload");
 const bannerRoutes = require("./routes/banners");
+const contactInfoRoutes = require("./routes/contactInfo");
 
 const app = express();
 
@@ -67,6 +68,7 @@ app.use("/api/career-applications", careerApplicationRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/banners", bannerRoutes);
+app.use("/api/contact-info", contactInfoRoutes);
 
 // ---- 404 + error handler ----
 app.use((req, res) => res.status(404).json({ message: "Route not found" }));

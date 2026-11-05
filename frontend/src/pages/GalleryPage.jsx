@@ -32,9 +32,9 @@ export default function GalleryPage({ type }) {
           {!loading && items.length === 0 && (
             <p className="empty-state">{t("Nothing published here yet — add items from the admin panel.")}</p>
           )}
-          <div className="grid grid--3" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(240px, 300px))" }}>
+          <div className="grid gallery-grid">
             {items.map((item) => (
-              <div key={item._id} className="card" style={{ overflow: "hidden", maxWidth: 300 }}>
+              <div key={item._id} className="card" style={{ overflow: "hidden" }}>
                 {item.type === "video" ? (
                   /\.(mp4|webm|ogg|mov)$/i.test(item.url) ? (
                     <div style={{ aspectRatio: "16/9", background: "#000" }}>

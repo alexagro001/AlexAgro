@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { site } from "../siteConfig";
 import { useLanguage } from "../context/LanguageContext";
 import { gmailComposeLink } from "../utils/links";
+import useContactInfo from "../utils/useContactInfo";
 
 function ContactIcon({ name }) {
   const paths = {
@@ -28,7 +29,8 @@ function ContactIcon({ name }) {
 }
 
 export default function Footer() {
-  const { t, n } = useLanguage();
+  const { t, n, l } = useLanguage();
+  const info = useContactInfo();
 
   return (
     <footer className="footer">
@@ -74,25 +76,25 @@ export default function Footer() {
           <h4>{t("Contact Info")}</h4>
           <ul>
             <li>
-              <a href={site.mapUrl} target="_blank" rel="noreferrer" style={{ fontWeight: 700 }}>
+              <a href={info.mapUrl} target="_blank" rel="noreferrer" style={{ fontWeight: 700 }}>
                 <ContactIcon name="map" />
-                {t(site.address)} · {t("Open in Google Maps")}
+                {l(info, "address")} · {t("Open in Google Maps")}
               </a>
             </li>
             <li>
-              <a href={`tel:${site.phone.replace(/\s/g, "")}`} style={{ fontWeight: 700 }}>
+              <a href={`tel:${info.phone.replace(/\s/g, "")}`} style={{ fontWeight: 700 }}>
                 <ContactIcon name="phone" />
-                {n(site.phone)}
+                {n(info.phone)}
               </a>
             </li>
             <li>
-              <a href={gmailComposeLink(site.email)} target="_blank" rel="noreferrer" style={{ fontWeight: 700 }}>
+              <a href={gmailComposeLink(info.email)} target="_blank" rel="noreferrer" style={{ fontWeight: 700 }}>
                 <ContactIcon name="email" />
-                {site.email}
+                {info.email}
               </a>
             </li>
             <li>
-              <a href={site.social.facebook} target="_blank" rel="noreferrer" style={{ fontWeight: 700 }}>
+              <a href={info.facebook} target="_blank" rel="noreferrer" style={{ fontWeight: 700 }}>
                 <ContactIcon name="facebook" />
                 {t("Facebook Page")}
               </a>

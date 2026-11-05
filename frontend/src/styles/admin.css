@@ -296,8 +296,36 @@
     border: none;
     margin: 0;
     padding: 0;
+    /* side by side, not stacked, so the top bar stays one row tall */
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .admin__logout p {
+    padding-bottom: 0 !important; /* overrides the inline desktop spacing */
   }
   .admin-form-grid {
     grid-template-columns: 1fr;
+  }
+  /* In the sideways-scrolling top bar the logo chip was squeezed to 0px and labels wrapped. */
+  .admin__brand {
+    flex-shrink: 0;
+    padding: 0 8px 0 0;
+  }
+  .admin__nav a,
+  .admin__nav button {
+    white-space: nowrap;
+  }
+  .admin__main {
+    padding: 20px 16px 48px;
+  }
+  /* Tables scroll sideways on phones; keep the last column (Edit/Delete) in view. */
+  .admin-table th:last-child,
+  .admin-table td:last-child:not([colspan]) {
+    position: sticky;
+    right: 0;
+    background: #fff;
+    box-shadow: -10px 0 10px -10px rgba(0, 0, 0, 0.25);
   }
 }

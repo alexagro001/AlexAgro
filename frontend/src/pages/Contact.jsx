@@ -3,16 +3,17 @@ import PageHeader from "../components/PageHeader";
 import LeafButton from "../components/LeafButton";
 import LeafIcon from "../components/LeafIcon";
 import api from "../api/axios";
-import { site } from "../siteConfig";
 import { useLanguage } from "../context/LanguageContext";
 import { gmailComposeLink } from "../utils/links";
+import useContactInfo from "../utils/useContactInfo";
 
 const initialForm = { name: "", email: "", phone: "", subject: "", message: "" };
 
 export default function Contact() {
   const [form, setForm] = useState(initialForm);
   const [status, setStatus] = useState({ state: "idle", message: "" });
-  const { t, n } = useLanguage();
+  const { t, n, l } = useLanguage();
+  const info = useContactInfo();
 
   const update = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
 
@@ -79,20 +80,20 @@ export default function Contact() {
             <div className="card tile">
               <div className="tile__icon"><LeafIcon size={20} /></div>
               <h3>{t("Head Office")}</h3>
-              <p style={{ fontWeight: 700, color: "var(--ink-soil)" }}>{t(site.address)}</p>
+              <p style={{ fontWeight: 700, color: "var(--ink-soil)" }}>{l(info, "address")}</p>
             </div>
             <div className="card tile">
               <div className="tile__icon"><LeafIcon size={20} /></div>
               <h3>{t("Phone")}</h3>
               <p style={{ fontWeight: 700 }}>
-                <a href={`tel:${site.phone.replace(/\s/g, "")}`}>{n(site.phone)}</a>
+                <a href={`tel:${info.phone.replace(/\s/g, "")}`}>{n(info.phone)}</a>
               </p>
             </div>
             <div className="card tile">
               <div className="tile__icon"><LeafIcon size={20} /></div>
               <h3>{t("Email")}</h3>
               <p style={{ fontWeight: 700 }}>
-                <a href={gmailComposeLink(site.email)} target="_blank" rel="noreferrer">{site.email}</a>
+                <a href={gmailComposeLink(info.email)} target="_blank" rel="noreferrer">{info.email}</a>
               </p>
             </div>
           </div>

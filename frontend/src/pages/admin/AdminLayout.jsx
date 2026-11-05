@@ -12,6 +12,7 @@ const LINKS = [
   { to: "/admin/gallery", label: "Gallery" },
   { to: "/admin/career-applications", label: "Career Applications" },
   { to: "/admin/messages", label: "Messages" },
+  { to: "/admin/contact-info", label: "Contact Info" },
   { to: "/admin/settings", label: "Settings" },
 ];
 

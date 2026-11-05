@@ -32,6 +32,7 @@ import ManageGallery from "./pages/admin/ManageGallery";
 import ManageCareerApplications from "./pages/admin/ManageCareerApplications";
 import ManageMessages from "./pages/admin/ManageMessages";
 import AdminSettings from "./pages/admin/AdminSettings";
+import ManageContactInfo from "./pages/admin/ManageContactInfo";
 
 export default function App() {
   return (
@@ -77,6 +78,7 @@ export default function App() {
             <Route path="gallery" element={<ManageGallery />} />
             <Route path="career-applications" element={<ManageCareerApplications />} />
             <Route path="messages" element={<ManageMessages />} />
+            <Route path="contact-info" element={<ManageContactInfo />} />
             <Route path="settings" element={<AdminSettings />} />
           </Route>
         </Routes>
