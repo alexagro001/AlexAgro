@@ -28,7 +28,9 @@ app.use(express.json({ limit: "12mb" }));
 const allowedOrigins = (process.env.CLIENT_URLS || "http://localhost:5173,http://localhost:5174,http://127.0.0.1:5173,http://127.0.0.1:5174")
   .split(",")
   .map((o) => o.trim())
-  .filter(Boolean);
+  .filter(Boolean)
+  // Production domains are always allowed, whatever CLIENT_URLS is set to on the host.
+  .concat("https://alexagro.com.bd", "https://www.alexagro.com.bd");
 
 const isLocalFrontendOrigin = (origin) => {
   if (!origin) return true;
