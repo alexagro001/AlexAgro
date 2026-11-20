@@ -1,6 +1,55 @@
 const nodemailer = require("nodemailer");
 
+// ---- Brevo (web API) ----
+// Render's free plan blocks the SMTP ports (25/465/587), so Gmail SMTP cannot
+// work there. Brevo's HTTPS API goes over port 443, which is always open.
+// If BREVO_API_KEY is set it is used for every email; otherwise the old SMTP
+// settings are used exactly as before.
+function parseFrom(from) {
+  const m = /^\s*"?([^"<]*?)"?\s*<([^>]+)>\s*$/.exec(String(from || ""));
+  return m ? { name: m[1].trim(), email: m[2].trim() } : { name: "", email: String(from || "").trim() };
+}
+
+function buildBrevoTransporter() {
+  const apiKey = process.env.BREVO_API_KEY;
+  if (!apiKey) return null;
+
+  return {
+    async sendMail(opts) {
+      const from = parseFrom(opts.from);
+      // The sender address must be verified inside Brevo.
+      const senderEmail =
+        process.env.BREVO_SENDER_EMAIL || process.env.SMTP_USER || process.env.CONTACT_RECEIVER_EMAIL || from.email;
+      const body = {
+        sender: { name: from.name || "Alex Agro", email: senderEmail },
+        to: [{ email: opts.to }],
+        subject: opts.subject,
+        htmlContent: opts.html || `<p>${opts.text || ""}</p>`,
+      };
+      if (opts.text) body.textContent = opts.text;
+      if (opts.replyTo) body.replyTo = { email: opts.replyTo };
+
+      const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: { "api-key": apiKey, "content-type": "application/json", accept: "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) {
+        let detail = "";
+        try {
+          detail = await res.text();
+        } catch (_) {}
+        throw new Error(`Brevo API ${res.status}: ${detail}`);
+      }
+      return res.json().catch(() => ({}));
+    },
+  };
+}
+
 function buildTransporter() {
+  const brevo = buildBrevoTransporter();
+  if (brevo) return brevo;
+
   if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
     return null; // email not configured yet
   }
@@ -42,7 +91,7 @@ async function sendWithTimeout(transporter, mailOptions, label) {
 async function sendContactEmail({ name, email, phone, subject, message }) {
   const transporter = buildTransporter();
   if (!transporter) {
-    console.warn("Email not sent: SMTP_HOST / SMTP_USER / SMTP_PASS are not set");
+    console.warn("Email not sent: set BREVO_API_KEY (recommended) or SMTP_HOST / SMTP_USER / SMTP_PASS");
     return { sent: false, reason: "smtp-not-configured" };
   }
 
@@ -92,7 +141,7 @@ async function sendContactEmail({ name, email, phone, subject, message }) {
 async function sendCareerApplicationEmail({ fullName, email, cvUrl }) {
   const transporter = buildTransporter();
   if (!transporter) {
-    console.warn("Email not sent: SMTP_HOST / SMTP_USER / SMTP_PASS are not set");
+    console.warn("Email not sent: set BREVO_API_KEY (recommended) or SMTP_HOST / SMTP_USER / SMTP_PASS");
     return { sent: false, reason: "smtp-not-configured" };
   }
 
@@ -124,7 +173,7 @@ async function sendCareerApplicationEmail({ fullName, email, cvUrl }) {
 async function sendAdminCodeEmail({ to, code, purpose, minutes = 5 }) {
   const transporter = buildTransporter();
   if (!transporter) {
-    console.warn("Email not sent: SMTP_HOST / SMTP_USER / SMTP_PASS are not set");
+    console.warn("Email not sent: set BREVO_API_KEY (recommended) or SMTP_HOST / SMTP_USER / SMTP_PASS");
     return { sent: false, reason: "smtp-not-configured" };
   }
 
