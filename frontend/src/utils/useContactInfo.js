@@ -5,10 +5,9 @@ import { site } from "../siteConfig";
 const CACHE_KEY = "alexagro_contact_info";
 
 // Built-in values, used until an admin saves their own and for any field left blank.
-// addressBn is blank so the Bangla address still comes from the i18n dictionary.
 const DEFAULTS = {
   address: site.address,
-  addressBn: "",
+  addressBn: "বাঘাবাড়ী ঘাট, শাহজাদপুর, সিরাজগঞ্জ",
   mapUrl: site.mapUrl,
   phone: site.phone,
   email: site.email,

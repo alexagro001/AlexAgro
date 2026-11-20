@@ -194,20 +194,10 @@
 .banner-slider {
   position: relative;
   width: 100%;
-  height: 90vh;
-  min-height: 520px;
-  max-height: 920px;
+  height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   background: var(--root-brown-dark);
-}
-
-@media (max-width: 720px) {
-  /* Banners are wide (16:9, 3:2); a 70vh box left them as a thin strip in a tall blur. */
-  .banner-slider {
-    height: auto;
-    aspect-ratio: 16 / 10;
-    min-height: 0;
-  }
 }
 
 .banner-slider--skeleton {
@@ -300,7 +290,7 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
 }
 
 .banner-slide__scrim {
@@ -333,7 +323,11 @@
 }
 
 @media (max-width: 720px) {
-  /* The banner is only ~230px tall on phones: smaller copy, inset clear of the arrows. */
+  .banner-slide__img {
+    object-fit: contain;
+  }
+
+  /* Keep the copy inset clear of the arrows on phones. */
   .banner-slide__copy {
     left: 44px;
     right: 44px;
@@ -662,7 +656,8 @@
   border: 1.5px solid var(--line-soft);
   background: #fff;
   font-family: var(--font-body);
-  font-size: 0.95rem;
+  /* iOS Safari zooms form controls smaller than 16px when focused. */
+  font-size: 16px;
   color: var(--ink-soil);
 }
 
@@ -1284,6 +1279,40 @@
   display: grid;
   grid-template-columns: 1.4fr 1fr 1fr 1.2fr;
   gap: 32px;
+}
+
+.footer__profile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.footer__profile-image {
+  flex: 0 0 clamp(132px, 16vw, 180px);
+  width: clamp(132px, 16vw, 180px);
+  height: clamp(132px, 16vw, 180px);
+  border: 2px solid rgba(246, 241, 228, 0.55);
+  border-radius: 8px;
+  object-fit: cover;
+  object-position: center 28%;
+}
+
+.footer__profile-copy {
+  min-width: 0;
+}
+
+.footer__profile-copy p {
+  margin: 0 0 4px;
+  color: var(--sprout-lime);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.footer .footer__profile-copy h4 {
+  margin: 0;
+  font-size: 0.85rem;
+  text-transform: none;
 }
 
 .footer h4 {

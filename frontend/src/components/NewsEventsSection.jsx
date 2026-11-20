@@ -5,6 +5,8 @@ import { playSwipeSound, playClickSound } from "../utils/sound";
 import BeeIcon from "./BeeIcon";
 import Lightbox from "./Lightbox";
 
+const AUTO_SCROLL_MS = 4000;
+
 export default function NewsEventsSection() {
   const [items, setItems] = useState([]);
   const [lightboxItem, setLightboxItem] = useState(null);
@@ -17,6 +19,27 @@ export default function NewsEventsSection() {
       .then((res) => setItems(res.data))
       .catch((err) => console.error("Failed to load news & events", err));
   }, []);
+
+  useEffect(() => {
+    if (items.length < 2) return undefined;
+
+    const timer = setInterval(() => {
+      const track = trackRef.current;
+      const card = track?.querySelector(".news-card");
+      if (!track || !card) return;
+
+      const maxScroll = track.scrollWidth - track.clientWidth;
+      if (maxScroll <= 1) return;
+
+      const step = card.offsetWidth + 20;
+      const nextLeft = track.scrollLeft >= maxScroll - 1
+        ? 0
+        : Math.min(track.scrollLeft + step, maxScroll);
+      track.scrollTo({ left: nextLeft, behavior: "smooth" });
+    }, AUTO_SCROLL_MS);
+
+    return () => clearInterval(timer);
+  }, [items.length]);
 
   const scroll = (dir) => {
     playSwipeSound();
@@ -67,7 +90,7 @@ export default function NewsEventsSection() {
                   {item.type === "video" ? (
                     item.thumbnail ? (
                       <>
-                        <img src={item.thumbnail} alt={l(item, "title")} />
+                        <img src={item.thumbnail} alt={item.altText?.trim() || l(item, "title")} />
                         <span className="news-card__play">
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M8 5v14l11-7z" />
@@ -82,7 +105,7 @@ export default function NewsEventsSection() {
                       </svg>
                     )
                   ) : item.url ? (
-                    <img src={item.url} alt={l(item, "title")} />
+                    <img src={item.url} alt={item.altText?.trim() || l(item, "title")} />
                   ) : (
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
                       <path d="M12 21C6 16,5 10,12 3 C19 10,18 16,12 21Z" stroke="currentColor" strokeWidth="1.5" />
@@ -116,6 +139,7 @@ export default function NewsEventsSection() {
       {lightboxItem && (
         <Lightbox
           image={lightboxItem.type === "video" ? lightboxItem.thumbnail : lightboxItem.url}
+          imageAlt={lightboxItem.altText?.trim() || l(lightboxItem, "title")}
           title={l(lightboxItem, "title")}
           description={l(lightboxItem, "description")}
           onClose={() => setLightboxItem(null)}

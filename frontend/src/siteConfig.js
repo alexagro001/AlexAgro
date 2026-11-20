@@ -4,11 +4,11 @@ export { bdDivisions } from "./bdData";
 export const site = {
   name: "Alex Agro",
   tagline: "Your Crops Friend",
-  legalName: "Alex Agro Limited",
+  legalName: "Alex Agro",
   description:
     "ALEX AGRO is a premium agricultural conglomerate dedicated to restoring organic life to global crop soils.",
-  address: "Level 6, Agribari Bhaban, Tejgaon Industrial Area, Dhaka-1208",
-  phone: "+880 9678 000000",
+  address: "Baghabari Ghat, Shazadpur, Sirajganj",
+  phone: "01522113291",
   email: "alexagro001@gmail.com",
   social: {
     facebook: "https://www.facebook.com/profile.php?id=61594359914569",
@@ -16,7 +16,7 @@ export const site = {
     linkedin: "https://linkedin.com",
   },
   mapUrl:
-    "https://www.google.com/maps/place/Alex+Agro/@24.1414137,89.5871417,17z/data=!4m14!1m7!3m6!1s0x39fe77d48a0011cb:0xaeef0b65d910059d!2sAlex+Agro!8m2!3d24.1414088!4d89.5873241!16s%2Fg%2F11ntksz2pq!3m5!1s0x39fe77d48a0011cb:0xaeef0b65d910059d!8m2!3d24.1414088!4d89.5873241!16s%2Fg%2F11ntksz2pq?entry=ttu&g_ep=EgoyMDI2MTAwNy4wIKXMDSoASAFQAw%3D%3D",
+    "https://www.google.com/maps/search/?api=1&query=Baghabari%20Ghat%2C%20Shazadpur%2C%20Sirajganj",
 };
 
 export const navigation = [

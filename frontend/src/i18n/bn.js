@@ -263,7 +263,6 @@ export const bn = {
 
   // Brand & contact details
   "Alex Agro": "এলেক্স এগ্রো",
-  "Alex Agro Limited": "এলেক্স এগ্রো লিমিটেড",
   "Level 6, Agribari Bhaban, Tejgaon Industrial Area, Dhaka-1208": "লেভেল ৬, অ্যাগ্রিবাড়ি ভবন, তেজগাঁও শিল্প এলাকা, ঢাকা-১২০৮",
   Copyright: "কপিরাইট",
   "All rights reserved.": "সর্বস্বত্ব সংরক্ষিত।",

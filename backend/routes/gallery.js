@@ -5,6 +5,10 @@ const demoData = require("../demoData");
 
 const router = express.Router();
 
+function missingPhotoAltText(payload) {
+  return payload.type === "photo" && !payload.altText?.trim();
+}
+
 // GET /api/gallery?type=photo
 router.get("/", async (req, res) => {
   try {
@@ -33,6 +37,9 @@ router.get("/", async (req, res) => {
 router.post("/", requireAuth, async (req, res) => {
   try {
     const payload = { ...req.body };
+    if (missingPhotoAltText(payload)) {
+      return res.status(400).json({ message: "Alt text is required for gallery photos." });
+    }
 
     if (payload.order === undefined || payload.order === null || payload.order === "") {
       const last = await GalleryItem.findOne({ type: payload.type }).sort({ order: -1 });
@@ -48,6 +55,10 @@ router.post("/", requireAuth, async (req, res) => {
 
 router.put("/:id", requireAuth, async (req, res) => {
   try {
+    if (missingPhotoAltText(req.body)) {
+      return res.status(400).json({ message: "Alt text is required for gallery photos." });
+    }
+
     const item = await GalleryItem.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,

@@ -61,7 +61,7 @@ export default function GalleryPage({ type }) {
                     onClick={() => item.url && setLightboxItem(item)}
                   >
                     {item.url ? (
-                      <img src={item.url} alt={l(item, "title")} />
+                      <img src={item.url} alt={item.altText?.trim() || l(item, "title")} />
                     ) : (
                       <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
                         <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" strokeWidth="1.5" />
@@ -88,6 +88,7 @@ export default function GalleryPage({ type }) {
       {lightboxItem && (
         <Lightbox
           image={lightboxItem.url}
+          imageAlt={lightboxItem.altText?.trim() || l(lightboxItem, "title")}
           title={l(lightboxItem, "title")}
           description={l(lightboxItem, "description")}
           onClose={() => setLightboxItem(null)}

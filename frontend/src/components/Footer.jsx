@@ -46,7 +46,17 @@ export default function Footer() {
 
       <div className="footer__inner">
         <div>
-          <h4>{t(site.name)}</h4>
+          <div className="footer__profile">
+            <img
+              className="footer__profile-image"
+              src="/images/founder-ceo.png"
+              alt="Md. Sabbit Hasan Sun"
+            />
+            <div className="footer__profile-copy">
+              <p>{t("Founder and CEO")}</p>
+              <h4>Md. Sabbit Hasan Sun</h4>
+            </div>
+          </div>
           <p style={{ color: "rgba(246,241,228,0.7)", fontSize: "0.9rem", maxWidth: 260 }}>
             {t(site.description)}
           </p>

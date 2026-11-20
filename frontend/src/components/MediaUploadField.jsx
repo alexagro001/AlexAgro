@@ -6,7 +6,15 @@ import api from "../api/axios";
  * file uploads it to the backend (/api/upload) and fills the URL field
  * with the returned link — no manual URL typing required.
  */
-export default function MediaUploadField({ id, value, onChange, accept = "image/*,video/*" }) {
+export default function MediaUploadField({
+  id,
+  value,
+  onChange,
+  accept = "image/*,video/*",
+  optimizeImages = false,
+  seoFilename = "",
+  altText,
+}) {
   const fileInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
@@ -27,6 +35,10 @@ export default function MediaUploadField({ id, value, onChange, accept = "image/
     setError("");
     try {
       const formData = new FormData();
+      if (optimizeImages && file.type.startsWith("image/")) {
+        formData.append("optimizeImage", "true");
+        formData.append("seoFilename", seoFilename);
+      }
       formData.append("file", file);
       // Important: don't set Content-Type manually here. Axios needs to
       // generate it itself (including the multipart boundary) — a
@@ -78,7 +90,7 @@ export default function MediaUploadField({ id, value, onChange, accept = "image/
           {/\.(mp4|webm|mov|ogg)$/i.test(value) ? (
             <video src={value} controls style={{ maxHeight: 120, borderRadius: 8 }} />
           ) : (
-            <img src={value} alt="Preview" style={{ maxHeight: 120, borderRadius: 8 }} />
+            <img src={value} alt={altText || "Preview"} style={{ maxHeight: 120, borderRadius: 8 }} />
           )}
         </div>
       )}

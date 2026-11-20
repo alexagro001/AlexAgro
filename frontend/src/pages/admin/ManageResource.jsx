@@ -54,6 +54,8 @@ export default function ManageResource({ config }) {
     config.fields.forEach((f) => {
       if (item[f.name] !== undefined && item[f.name] !== null) {
         next[f.name] = f.type === "date" ? String(item[f.name]).slice(0, 10) : item[f.name];
+      } else if (f.defaultFrom && item[f.defaultFrom]) {
+        next[f.name] = item[f.defaultFrom];
       }
     });
     setForm(next);
@@ -171,7 +173,7 @@ export default function ManageResource({ config }) {
                     {f.type === "select" ? (
                       <select
                         id={f.name}
-                        required={f.required}
+                        required={f.required || f.requiredWhen?.(form)}
                         value={form[f.name]}
                         onChange={(e) => updateField(f.name, e.target.value)}
                       >
@@ -185,7 +187,7 @@ export default function ManageResource({ config }) {
                     ) : f.type === "textarea" ? (
                       <textarea
                         id={f.name}
-                        required={f.required}
+                        required={f.required || f.requiredWhen?.(form)}
                         value={form[f.name]}
                         onChange={(e) => updateField(f.name, e.target.value)}
                       />
@@ -194,7 +196,8 @@ export default function ManageResource({ config }) {
                         id={f.name}
                         type={f.type === "number" ? "number" : f.type === "date" ? "date" : "text"}
                         step={f.type === "number" ? "any" : undefined}
-                        required={f.required}
+                        required={f.required || f.requiredWhen?.(form)}
+                        placeholder={f.placeholder}
                         value={form[f.name]}
                         onChange={(e) => updateField(f.name, e.target.value)}
                       />
@@ -213,6 +216,9 @@ export default function ManageResource({ config }) {
                     value={form[f.name]}
                     onChange={(url) => updateField(f.name, url)}
                     accept={f.accept}
+                    optimizeImages={f.optimizeImages}
+                    seoFilename={f.seoFilenameField ? form[f.seoFilenameField] : ""}
+                    altText={f.altTextField ? form[f.altTextField] : undefined}
                   />
                 </div>
               ))}

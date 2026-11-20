@@ -7,6 +7,7 @@ const GalleryItemSchema = new mongoose.Schema(
     titleBn: { type: String, trim: true }, // optional Bangla title; falls back to `title` if blank
     description: { type: String, trim: true },
     descriptionBn: { type: String, trim: true },
+    altText: { type: String, trim: true, maxlength: 300 },
     url: { type: String, required: true, trim: true }, // image URL, or video URL/embed (e.g. YouTube link)
     thumbnail: { type: String, trim: true }, // used for videos
     order: { type: Number, default: 0 }, // lower numbers show first; controls display sequence

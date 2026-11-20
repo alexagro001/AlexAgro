@@ -1,7 +1,17 @@
 import { useEffect } from "react";
 import { useLanguage } from "../context/LanguageContext";
 
-export default function Lightbox({ image, title, tagline, description, actionHref, actionLabel, sideBySide, onClose }) {
+export default function Lightbox({
+  image,
+  imageAlt,
+  title,
+  tagline,
+  description,
+  actionHref,
+  actionLabel,
+  sideBySide,
+  onClose,
+}) {
   const { t } = useLanguage();
 
   useEffect(() => {
@@ -27,7 +37,7 @@ export default function Lightbox({ image, title, tagline, description, actionHre
         </button>
         <div className="lightbox__split" onClick={(e) => e.stopPropagation()}>
           <div className="lightbox__split-image">
-            <img src={image} alt={title || ""} />
+            <img src={image} alt={imageAlt || title || ""} />
           </div>
           <div className="lightbox__split-text">
             {title && <h2 className="lightbox__split-title">{title}</h2>}
@@ -57,7 +67,7 @@ export default function Lightbox({ image, title, tagline, description, actionHre
         {t("Back")}
       </button>
       <div className="lightbox__stage" onClick={(e) => e.stopPropagation()}>
-        <img src={image} alt={title || ""} />
+        <img src={image} alt={imageAlt || title || ""} />
         {title && <div className="lightbox__caption">{title}</div>}
         {tagline && <p className="lightbox__desc" style={{ fontWeight: 700 }}>{tagline}</p>}
         {description && <p className="lightbox__desc">{description}</p>}

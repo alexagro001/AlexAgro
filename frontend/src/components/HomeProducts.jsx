@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import LeafIcon from "./LeafIcon";
 import { localizeProduct } from "../utils/localizeProduct";
@@ -21,6 +21,8 @@ const PRODUCT_FALLBACKS = [
   description: shortDescription,
   image: `/images/products/${image}`,
 }));
+
+const AUTO_ADVANCE_MS = 4000;
 
 function Arrow({ previous = false }) {
   return (
@@ -45,6 +47,17 @@ export default function HomeProducts({ products }) {
     setDirection(delta);
     setActiveIndex((index + delta + items.length) % items.length);
   };
+
+  useEffect(() => {
+    if (items.length < 2) return undefined;
+
+    const timer = setInterval(() => {
+      setDirection(1);
+      setActiveIndex((current) => (current + 1) % items.length);
+    }, AUTO_ADVANCE_MS);
+
+    return () => clearInterval(timer);
+  }, [activeIndex, items.length]);
 
   return (
     <section className="op" aria-labelledby="op-title">
