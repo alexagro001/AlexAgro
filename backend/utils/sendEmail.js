@@ -118,4 +118,36 @@ async function sendCareerApplicationEmail({ fullName, email, cvUrl }) {
   return { sent: true };
 }
 
-module.exports = { sendContactEmail, sendCareerApplicationEmail };
+// Emails the 6-digit admin sign-in code (or the password-reset code) to the
+// admin address. Unlike the notification emails above, the caller must know
+// whether it was delivered, because the person cannot continue without it.
+async function sendAdminCodeEmail({ to, code, purpose, minutes = 5 }) {
+  const transporter = buildTransporter();
+  if (!transporter) {
+    console.warn("Email not sent: SMTP_HOST / SMTP_USER / SMTP_PASS are not set");
+    return { sent: false, reason: "smtp-not-configured" };
+  }
+
+  const isReset = purpose === "reset";
+  const sent = await sendWithTimeout(
+    transporter,
+    {
+      from: `"Alex Agro Admin" <${process.env.SMTP_USER}>`,
+      to,
+      subject: isReset ? "Your Alex Agro password reset code" : "Your Alex Agro admin login code",
+      text: `Your ${isReset ? "password reset" : "admin login"} code is ${code}. It expires in ${minutes} minutes. If this wasn't you, ignore this email and change your admin password.`,
+      html: `
+        <h2>${isReset ? "Password reset code" : "Admin login code"}</h2>
+        <p>Your code is:</p>
+        <p style="font-size:28px;letter-spacing:6px;font-weight:bold;">${code}</p>
+        <p>It expires in ${minutes} minutes and works only once.</p>
+        <p>If this wasn't you, ignore this email and change your admin password.</p>
+      `,
+    },
+    "Admin code email"
+  );
+
+  return { sent, reason: sent ? undefined : "send-failed" };
+}
+
+module.exports = { sendContactEmail, sendCareerApplicationEmail, sendAdminCodeEmail };

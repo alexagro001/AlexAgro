@@ -9,13 +9,33 @@ export function AuthProvider({ children }) {
     return saved ? JSON.parse(saved) : null;
   });
 
-  const login = useCallback(async (username, password) => {
-    const { data } = await api.post("/auth/login", { username, password });
+  const saveSession = useCallback((data) => {
     localStorage.setItem("alexagro_admin_token", data.token);
     localStorage.setItem("alexagro_admin_profile", JSON.stringify(data.admin));
     setAdmin(data.admin);
-    return data.admin;
   }, []);
+
+  // Step 1: password. Normally the server answers { requiresCode: true } and
+  // emails a code; the session only starts after verifyCode below.
+  const login = useCallback(
+    async (username, password) => {
+      const { data } = await api.post("/auth/login", { username, password });
+      if (data.requiresCode) return data;
+      saveSession(data);
+      return data;
+    },
+    [saveSession]
+  );
+
+  // Step 2: the 6-digit code from the email.
+  const verifyCode = useCallback(
+    async (challengeId, code) => {
+      const { data } = await api.post("/auth/verify-code", { challengeId, code });
+      saveSession(data);
+      return data.admin;
+    },
+    [saveSession]
+  );
 
   const logout = useCallback(() => {
     localStorage.removeItem("alexagro_admin_token");
@@ -24,7 +44,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ admin, login, logout, isAuthenticated: !!admin }}>
+    <AuthContext.Provider value={{ admin, login, verifyCode, logout, isAuthenticated: !!admin }}>
       {children}
     </AuthContext.Provider>
   );

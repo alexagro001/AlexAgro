@@ -31,8 +31,11 @@ starts both servers together:
 
 **Admin login:** username `admin`. The password is the same on localhost and
 live; only its bcrypt hash is stored, in `backend/config/adminAccess.js` (ask
-the site owner for it). Forgot it? Use **Forgot password?** on the login page
-with the recovery key. To change it from code: `node backend/hashSecret.js
+the site owner for it). Every sign-in also needs a 6-digit code that is emailed
+to the admin address (see `ADMIN_LOGIN_EMAIL` in `backend/.env.example`); on
+localhost without SMTP the code is printed in the backend terminal. Forgot the
+password? Use **Forgot password?** on the login page: a reset code is emailed
+the same way. To change it from code: `node backend/hashSecret.js
 "new-password"`, paste the hash into `adminAccess.js` and bump
 `passwordVersion`.
 

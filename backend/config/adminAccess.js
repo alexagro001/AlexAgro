@@ -10,12 +10,16 @@
 module.exports = {
   username: "admin",
 
+  // Where the 6-digit sign-in code and the "Forgot password?" code are emailed.
+  // (The ADMIN_LOGIN_EMAIL setting on the server, if set, overrides this.)
+  email: "alexagro001@gmail.com",
+
   // Login password hash. Applied to the database whenever passwordVersion
   // is higher than the version the stored admin was last synced with.
   passwordHash: "$2a$10$t0L0v6KYMgJCNZF8gXPT7.GUgrSajgid25zuWsQOKJYJSMtvn/Qvm",
   passwordVersion: 1,
 
-  // Recovery key hash, used by "Forgot password?" on the admin login page
-  // to set a new password without email or database access.
+  // No longer used: "Forgot password?" now emails a reset code to the address
+  // above instead of asking for a recovery key. Safe to delete later.
   recoveryKeyHash: "$2a$10$FQbH78hpwMXD1FkabpZ/4ObuCx8hKkiz.r8ii4Bxr2Y87.pw7kYCS",
 };
