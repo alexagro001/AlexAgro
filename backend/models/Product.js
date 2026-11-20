@@ -14,6 +14,7 @@ const ProductSchema = new mongoose.Schema(
     description: { type: String, trim: true },
     descriptionBn: { type: String, trim: true },
     image: { type: String, trim: true },
+    altText: { type: String, trim: true, maxlength: 300 }, // SEO alt text for the product image
     detailsLink: { type: String, trim: true },
     isFeatured: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },

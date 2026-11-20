@@ -5,6 +5,10 @@ const demoData = require("../demoData");
 
 const router = express.Router();
 
+function missingImageAltText(payload) {
+  return Boolean(payload.image?.trim()) && !payload.altText?.trim();
+}
+
 // GET /api/products?category=crop-health
 router.get("/", async (req, res) => {
   try {
@@ -41,6 +45,9 @@ router.get("/:id", async (req, res) => {
 
 router.post("/", requireAuth, async (req, res) => {
   try {
+    if (missingImageAltText(req.body)) {
+      return res.status(400).json({ message: "Alt text is required for product images." });
+    }
     const product = await Product.create(req.body);
     res.status(201).json(product);
   } catch (err) {
@@ -50,6 +57,9 @@ router.post("/", requireAuth, async (req, res) => {
 
 router.put("/:id", requireAuth, async (req, res) => {
   try {
+    if (missingImageAltText(req.body)) {
+      return res.status(400).json({ message: "Alt text is required for product images." });
+    }
     const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,

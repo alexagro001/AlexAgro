@@ -73,7 +73,7 @@ export default function HomeProducts({ products }) {
         <article className={`op__card op__card--${direction > 0 ? "next" : "prev"}`} key={active._id || index}>
           <div className="op__media">
             <span className="op__badge"><LeafIcon size={17} />{t(active.category === "agro-processing" ? "Agro Processing" : "Crop Health")}</span>
-            {active.image ? <img src={active.image} alt={active.name} loading="lazy" /> : <LeafIcon size={72} />}
+            {active.image ? <img src={active.image} alt={active.altText?.trim() || active.name} loading="lazy" /> : <LeafIcon size={72} />}
           </div>
           <div className="op__info">
             <h3 className="op__name">{active.name}</h3>

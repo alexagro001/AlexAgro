@@ -88,7 +88,7 @@ export default function ProductCarousel({ products, categoryLabel }) {
               onClick={() => p.image && (playClickSound(), setExpanded(p))}
             >
               {p.image ? (
-                <img src={p.image} alt={p.name} />
+                <img src={p.image} alt={p.altText?.trim() || p.name} />
               ) : (
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
                   <path d="M12 21C6 16,5 10,12 3 C19 10,18 16,12 21Z" stroke="currentColor" strokeWidth="1.5" />
@@ -151,6 +151,7 @@ export default function ProductCarousel({ products, categoryLabel }) {
       {expanded && (
         <Lightbox
           image={expanded.image}
+          imageAlt={expanded.altText?.trim() || expanded.name}
           title={expanded.name}
           tagline={expanded.shortDescription}
           description={expanded.description}

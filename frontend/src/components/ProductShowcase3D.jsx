@@ -118,7 +118,7 @@ export default function ProductShowcase3D({ products }) {
             >
               <span className="product-marquee__frame">
                 {p.image ? (
-                  <img src={p.image} alt={p.name} draggable={false} />
+                  <img src={p.image} alt={p.altText?.trim() || p.name} draggable={false} />
                 ) : (
                   <span className="product-marquee__fallback">{p.name}</span>
                 )}
@@ -138,6 +138,7 @@ export default function ProductShowcase3D({ products }) {
       {expanded && (
         <Lightbox
           image={expanded.image}
+          imageAlt={expanded.altText?.trim() || expanded.name}
           title={expanded.name}
           tagline={expanded.shortDescription}
           description={expanded.description}
