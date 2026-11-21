@@ -307,10 +307,15 @@
   top: 50%;
   transform: translateY(-50%);
   max-width: 560px;
+  padding-left: 18px;
+  border-left: 4px solid var(--harvest-amber);
   color: var(--husk-cream);
 }
 
 .banner-slide__copy h2 {
+  font-family: "Raleway", "Roboto", sans-serif;
+  font-weight: 800;
+  letter-spacing: 0.5px;
   color: var(--husk-cream);
   font-size: clamp(1.5rem, 3.2vw, 2.4rem);
   margin-bottom: 8px;
@@ -318,9 +323,24 @@
 }
 
 .banner-slide__copy p {
+  font-family: "Raleway", "Roboto", sans-serif;
+  font-weight: 400;
   color: rgba(246, 241, 228, 0.9);
   font-size: 1rem;
   text-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
+}
+
+html:lang(bn) .banner-slide__copy h2 {
+  font-family: "Noto Sans Bengali", "Hind Siliguri", sans-serif;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.4;
+}
+
+html:lang(bn) .banner-slide__copy p {
+  font-family: "Noto Sans Bengali", "Hind Siliguri", sans-serif;
+  font-weight: 500;
+  line-height: 1.7;
 }
 
 @media (max-width: 720px) {
