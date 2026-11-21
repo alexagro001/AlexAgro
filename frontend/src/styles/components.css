@@ -304,18 +304,12 @@
   position: absolute;
   z-index: 3;
   left: 48px;
-  top: 50%;
-  transform: translateY(-50%);
+  bottom: 48px;
   max-width: 560px;
-  padding-left: 18px;
-  border-left: 4px solid var(--harvest-amber);
   color: var(--husk-cream);
 }
 
 .banner-slide__copy h2 {
-  font-family: "Raleway", "Roboto", sans-serif;
-  font-weight: 800;
-  letter-spacing: 0.5px;
   color: var(--husk-cream);
   font-size: clamp(1.5rem, 3.2vw, 2.4rem);
   margin-bottom: 8px;
@@ -323,24 +317,9 @@
 }
 
 .banner-slide__copy p {
-  font-family: "Raleway", "Roboto", sans-serif;
-  font-weight: 400;
   color: rgba(246, 241, 228, 0.9);
   font-size: 1rem;
   text-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
-}
-
-html:lang(bn) .banner-slide__copy h2 {
-  font-family: "Noto Sans Bengali", "Hind Siliguri", sans-serif;
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.4;
-}
-
-html:lang(bn) .banner-slide__copy p {
-  font-family: "Noto Sans Bengali", "Hind Siliguri", sans-serif;
-  font-weight: 500;
-  line-height: 1.7;
 }
 
 @media (max-width: 720px) {
@@ -352,9 +331,7 @@ html:lang(bn) .banner-slide__copy p {
   .banner-slide__copy {
     left: 44px;
     right: 44px;
-    top: 50%;
-    bottom: auto;
-    transform: translateY(-50%);
+    bottom: 30px;
   }
   .banner-slide__copy h2 {
     font-size: 1.15rem;
@@ -2124,3 +2101,11 @@ html:lang(bn) .banner-slide__copy p {
   font-size: 0.88rem;
   color: var(--ink-soil-60);
 }
+
+/* Formatted product description (headings, bullets, bold) */
+.formatted-text h4 { color: var(--sprout-lime); font-size: 1.05rem; font-weight: 800; margin: 18px 0 8px; }
+.formatted-text h4:first-child { margin-top: 0; }
+.formatted-text p { margin: 0 0 10px; }
+.formatted-text ul { margin: 0 0 12px; padding-left: 22px; }
+.formatted-text li { margin-bottom: 6px; }
+.formatted-text strong { color: #fff; }
