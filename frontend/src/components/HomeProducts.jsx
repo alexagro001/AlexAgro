@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import LeafIcon from "./LeafIcon";
+import Lightbox from "./Lightbox";
 import { localizeProduct } from "../utils/localizeProduct";
 import { normalizeLink } from "../utils/links";
 import { useLanguage } from "../context/LanguageContext";
@@ -38,6 +39,7 @@ export default function HomeProducts({ products }) {
   const [activeIndex, setActiveIndex] = useState(0);
   // Which way the swap animation slides: 1 = towards next, -1 = towards previous.
   const [direction, setDirection] = useState(1);
+  const [expanded, setExpanded] = useState(false);
   const index = Math.min(activeIndex, items.length - 1);
   const active = items[index];
   const target = normalizeLink(
@@ -49,7 +51,7 @@ export default function HomeProducts({ products }) {
   };
 
   useEffect(() => {
-    if (items.length < 2) return undefined;
+    if (items.length < 2 || expanded) return undefined;
 
     const timer = setInterval(() => {
       setDirection(1);
@@ -57,7 +59,7 @@ export default function HomeProducts({ products }) {
     }, AUTO_ADVANCE_MS);
 
     return () => clearInterval(timer);
-  }, [activeIndex, items.length]);
+  }, [activeIndex, items.length, expanded]);
 
   return (
     <section className="op" aria-labelledby="op-title">
@@ -73,18 +75,13 @@ export default function HomeProducts({ products }) {
         <article className={`op__card op__card--${direction > 0 ? "next" : "prev"}`} key={active._id || index}>
           <div className="op__media">
             <span className="op__badge"><LeafIcon size={17} />{t(active.category === "agro-processing" ? "Agro Processing" : "Crop Health")}</span>
-            {active.image ? <img src={active.image} alt={active.altText?.trim() || active.name} loading="lazy" /> : <LeafIcon size={72} />}
+            {active.image ? <img src={active.image} alt={active.name} loading="lazy" /> : <LeafIcon size={72} />}
           </div>
           <div className="op__info">
             <h3 className="op__name">{active.name}</h3>
             {active.shortDescription && <p className="op__tagline">{active.shortDescription}</p>}
             <span className="op__rule" />
-            {active.description && <p className="op__description">{active.description}</p>}
-            {target.startsWith("/") ? (
-              <Link className="op__cta" to={target}>{t("Explore product")} <Arrow /></Link>
-            ) : (
-              <a className="op__cta" href={target} target="_blank" rel="noreferrer">{t("Explore product")} <Arrow /></a>
-            )}
+            <button className="op__cta" type="button" onClick={() => setExpanded(true)}>{t("View Details")} <Arrow /></button>
           </div>
         </article>
         <button className="op__arrow op__arrow--next" type="button" aria-label={t("Next product")} onClick={() => next(1)}>
@@ -108,6 +105,18 @@ export default function HomeProducts({ products }) {
           </button>
         ))}
       </div>
+      {expanded && active.image && (
+        <Lightbox
+          image={active.image}
+          title={active.name}
+          tagline={active.shortDescription}
+          description={active.description}
+          actionHref={active.detailsLink ? target : null}
+          actionLabel={t("Explore product")}
+          sideBySide
+          onClose={() => setExpanded(false)}
+        />
+      )}
     </section>
   );
 }

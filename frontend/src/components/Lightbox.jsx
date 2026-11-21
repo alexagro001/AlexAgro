@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useLanguage } from "../context/LanguageContext";
+import FormattedText from "./FormattedText";
 
 export default function Lightbox({
   image,
@@ -44,7 +45,7 @@ export default function Lightbox({
             {tagline && <p className="lightbox__split-tagline">{tagline}</p>}
             {description && (
               <div className="lightbox__split-desc-scroll">
-                <p className="lightbox__split-desc">{description}</p>
+                <FormattedText className="lightbox__split-desc" text={description} />
               </div>
             )}
             {actionHref && (
