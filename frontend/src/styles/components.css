@@ -2102,10 +2102,12 @@
   color: var(--ink-soil-60);
 }
 
-/* Formatted product description (headings, bullets, bold) */
-.formatted-text h4 { color: var(--sprout-lime); font-size: 1.05rem; font-weight: 800; margin: 18px 0 8px; }
+/* Formatted product description (shown the way the admin typed it) */
+.formatted-text { color: rgba(255, 255, 255, 0.9); }
+.formatted-text h4 { color: var(--sprout-lime); font-size: 1.1rem; font-weight: 800; line-height: 1.4; margin: 16px 0 6px; }
 .formatted-text h4:first-child { margin-top: 0; }
-.formatted-text p { margin: 0 0 10px; }
-.formatted-text ul { margin: 0 0 12px; padding-left: 22px; }
-.formatted-text li { margin-bottom: 6px; }
-.formatted-text strong { color: #fff; }
+.formatted-text p { margin: 0 0 6px; color: rgba(255, 255, 255, 0.9); font-weight: 500; line-height: 1.65; }
+.formatted-text ul { margin: 0 0 8px; padding-left: 22px; }
+.formatted-text li { margin-bottom: 4px; color: rgba(255, 255, 255, 0.9); font-weight: 500; line-height: 1.6; }
+.formatted-text strong { color: #fff; font-weight: 800; }
+.formatted-text__gap { height: 10px; }
