@@ -1,48 +1,28 @@
-// Turns the simple markdown-style text admins paste into product
-// descriptions (### headings, "- " bullets, **bold**) into tidy HTML,
-// instead of showing the raw symbols.
-function inline(text) {
-  return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
-    part.startsWith("**") && part.endsWith("**") ? <strong key={i}>{part.slice(2, -2)}</strong> : part
+import { parseDescription, parseInline } from "../utils/formatDescription";
+
+function Inline({ text }) {
+  return parseInline(text).map((part, i) =>
+    part.bold ? <strong key={i}>{part.text}</strong> : <span key={i}>{part.text}</span>
   );
 }
 
 export default function FormattedText({ text, className = "" }) {
-  if (!text) return null;
-
-  // Descriptions are sometimes saved on one line; put headings and
-  // bullets back on their own lines first.
-  const normalized = String(text)
-    .replace(/\r/g, "")
-    .replace(/\s+(#{1,4}\s)/g, "\n$1")
-    .replace(/([।.!?:])\s+-\s+/g, "$1\n- ")
-    .replace(/\s+(\*\*[^*]+\*\*)\s*$/g, "\n$1");
-
-  const blocks = [];
-  let list = null;
-  normalized.split("\n").forEach((raw) => {
-    const line = raw.trim();
-    if (!line) { list = null; return; }
-    const heading = line.match(/^#{1,4}\s+(.*)$/);
-    const bullet = line.match(/^[-*•]\s+(.*)$/);
-    if (heading) {
-      list = null;
-      blocks.push({ type: "h", text: heading[1] });
-    } else if (bullet) {
-      if (!list) { list = { type: "ul", items: [] }; blocks.push(list); }
-      list.items.push(bullet[1]);
-    } else {
-      list = null;
-      blocks.push({ type: "p", text: line });
-    }
-  });
+  const blocks = parseDescription(text);
+  if (!blocks.length) return null;
 
   return (
     <div className={`formatted-text ${className}`}>
-      {blocks.map((b, i) => {
-        if (b.type === "h") return <h4 key={i}>{inline(b.text)}</h4>;
-        if (b.type === "ul") return <ul key={i}>{b.items.map((it, j) => <li key={j}>{inline(it)}</li>)}</ul>;
-        return <p key={i}>{inline(b.text)}</p>;
+      {blocks.map((block, i) => {
+        if (block.type === "heading") return <h4 key={i}><Inline text={block.text} /></h4>;
+        if (block.type === "gap") return <div key={i} className="formatted-text__gap" aria-hidden="true" />;
+        if (block.type === "list") {
+          return (
+            <ul key={i}>
+              {block.items.map((item, j) => <li key={j}><Inline text={item} /></li>)}
+            </ul>
+          );
+        }
+        return <p key={i}><Inline text={block.text} /></p>;
       })}
     </div>
   );
