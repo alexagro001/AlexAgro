@@ -12,6 +12,54 @@ const CATEGORY = {
   "agro-processing": { label: "Agro Processing", path: "/products/agro-processing" },
 };
 
+// Updates the tags that already exist in index.html (title, description,
+// canonical...) instead of adding duplicates, and restores them when the
+// visitor leaves this page.
+function useSeo({ title, description, keywords, canonical, ogImage, noindex }) {
+  useEffect(() => {
+    const head = document.head;
+    const undo = [];
+
+    const prevTitle = document.title;
+    if (title) document.title = title;
+    undo.push(() => {
+      document.title = prevTitle;
+    });
+
+    const setTag = (tagName, matchAttr, matchValue, valueAttr, value) => {
+      if (!value) return;
+      let el = head.querySelector(`${tagName}[${matchAttr}="${matchValue}"]`);
+      let created = false;
+      if (!el) {
+        el = document.createElement(tagName);
+        el.setAttribute(matchAttr, matchValue);
+        head.appendChild(el);
+        created = true;
+      }
+      const prev = el.getAttribute(valueAttr);
+      el.setAttribute(valueAttr, value);
+      undo.push(() => {
+        if (created) el.remove();
+        else if (prev === null) el.removeAttribute(valueAttr);
+        else el.setAttribute(valueAttr, prev);
+      });
+    };
+
+    setTag("meta", "name", "description", "content", description);
+    setTag("meta", "name", "keywords", "content", keywords);
+    setTag("link", "rel", "canonical", "href", canonical);
+    setTag("meta", "property", "og:title", "content", title);
+    setTag("meta", "property", "og:description", "content", description);
+    setTag("meta", "property", "og:url", "content", canonical);
+    setTag("meta", "property", "og:image", "content", ogImage);
+    if (noindex) setTag("meta", "name", "robots", "content", "noindex");
+
+    return () => {
+      undo.reverse().forEach((fn) => fn());
+    };
+  }, [title, description, keywords, canonical, ogImage, noindex]);
+}
+
 export default function ProductDetail() {
   const { slug } = useParams();
   const { t, lang } = useLanguage();
@@ -41,6 +89,29 @@ export default function ProductDetail() {
     };
   }, [slug]);
 
+  const ok = status === "ok";
+  const isBn = lang === "bn";
+  const p = ok ? localizeProduct(raw, lang) : null;
+  const url = ok ? `${SITE}/products/${raw.slug || slug}` : undefined;
+  const cat = ok ? CATEGORY[raw.category] : undefined;
+
+  const title = ok ? (isBn && raw.seoTitleBn) || raw.seoTitle || p.name : undefined;
+  const description = ok
+    ? (isBn && raw.metaDescriptionBn) || raw.metaDescription || p.shortDescription || p.description || ""
+    : undefined;
+  const keywords = ok ? [raw.keywords, raw.keywordsBn].filter(Boolean).join(", ") : undefined;
+  // Only a real web link is used for Google (not an embedded data image).
+  const imageUrl = ok && raw.image && /^https?:\/\//i.test(raw.image) ? raw.image : undefined;
+
+  useSeo({
+    title,
+    description,
+    keywords,
+    canonical: url,
+    ogImage: imageUrl,
+    noindex: status === "missing" || status === "error",
+  });
+
   if (status === "loading") {
     return (
       <section className="section">
@@ -51,11 +122,10 @@ export default function ProductDetail() {
     );
   }
 
-  if (status !== "ok") {
+  if (!ok) {
     return (
       <section className="section">
         <div className="container">
-          <meta name="robots" content="noindex" />
           <p className="empty-state">
             {status === "missing" ? t("Product not found.") : t("Failed to load the product. Please try again.")}
           </p>
@@ -67,18 +137,7 @@ export default function ProductDetail() {
     );
   }
 
-  const p = localizeProduct(raw, lang);
-  const isBn = lang === "bn";
-  const url = `${SITE}/products/${raw.slug || slug}`;
-  const cat = CATEGORY[raw.category];
-
-  const title = (isBn && raw.seoTitleBn) || raw.seoTitle || p.name;
-  const description =
-    (isBn && raw.metaDescriptionBn) || raw.metaDescription || p.shortDescription || p.description || "";
-  const keywords = [raw.keywords, raw.keywordsBn].filter(Boolean).join(", ");
   const alt = (isBn && raw.altTextBn?.trim()) || raw.altText?.trim() || p.name;
-  // Only a real web link is used for Google (not an embedded data image).
-  const imageUrl = raw.image && /^https?:\/\//i.test(raw.image) ? raw.image : null;
   const otherName = isBn ? raw.name : raw.nameBn;
 
   const productSchema = {
@@ -116,15 +175,6 @@ export default function ProductDetail() {
 
   return (
     <div>
-      <title>{title}</title>
-      <meta name="description" content={description} />
-      {keywords && <meta name="keywords" content={keywords} />}
-      <link rel="canonical" href={url} />
-      <meta property="og:type" content="website" />
-      <meta property="og:title" content={title} />
-      <meta property="og:description" content={description} />
-      <meta property="og:url" content={url} />
-      {imageUrl && <meta property="og:image" content={imageUrl} />}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
 
       <PageHeader
