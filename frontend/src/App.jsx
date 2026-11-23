@@ -20,6 +20,7 @@ import Videos from "./pages/Videos";
 import Career from "./pages/Career";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
+import ProductDetail from "./pages/ProductDetail";
 
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminLayout from "./pages/admin/AdminLayout";
@@ -47,6 +48,7 @@ export default function App() {
             <Route path="/products" element={<Products />} />
             <Route path="/products/crop-health" element={<CropHealth />} />
             <Route path="/products/agro-processing" element={<AgroProcessing />} />
+            <Route path="/products/:slug" element={<ProductDetail />} />
             <Route path="/network" element={<DistributionNetwork />} />
             <Route path="/network/dealers" element={<DealerList />} />
             <Route path="/network/dealers/:id" element={<DealerDetail />} />
