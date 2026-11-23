@@ -5,7 +5,8 @@ const path = require("path");
 const connectDB = require("./config/db");
 const Admin = require("./models/Admin");
 const adminAccess = require("./config/adminAccess");
-
+const Product = require("./models/Product");
+const { backfillProductSlugs } = require("./utils/slug");
 const authRoutes = require("./routes/auth");
 const dealerRoutes = require("./routes/dealers");
 const distributorRoutes = require("./routes/distributors");
@@ -105,6 +106,7 @@ async function start() {
 
   if (dbReady) {
     await syncCodeAdmin();
+    await backfillProductSlugs(Product).catch((err) => console.error("Slug backfill failed:", err.message));
   } else {
     app.locals.demoAuthEnabled = process.env.NODE_ENV !== "production";
     app.locals.demoAdmin = {
