@@ -2132,6 +2132,7 @@
   border-radius: 3px;
   vertical-align: middle;
   margin-right: 3px;
+   display: inline-block;
 }
 .dev-credit a:hover {
   color: var(--sprout-lime);
