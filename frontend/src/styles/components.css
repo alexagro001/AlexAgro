@@ -2136,6 +2136,5 @@
    display: inline-block;
 }
 .dev-credit a:hover {
-  color: var(--sprout-lime);
-}
+  color: var(--sprout-lime);} 
 }
