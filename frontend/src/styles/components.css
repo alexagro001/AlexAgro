@@ -2136,5 +2136,14 @@
    display: inline-block;
 }
 .dev-credit a:hover {
-  color: var(--sprout-lime);} 
+  color: var(--sprout-lime);
 }
+/* Footer Contact Info: বড় পর্দায় প্রতিটি আইটেম এক লাইনে */
+@media (min-width: 1025px) {
+  .footer__contact-card ul li > a {
+    white-space: nowrap;
+    word-break: normal;
+    overflow-wrap: normal;
+  }
+}
+
