@@ -112,9 +112,13 @@ export default function Footer() {
           </ul>
         </div>
       </div>
-
       <div className="footer__bottom">
         {t("Copyright")} &copy; {n(new Date().getFullYear())} {t(site.legalName)}. {t("All rights reserved.")}
+        <span className="dev-credit">
+          &middot; Powered by{" "}
+          <img src="/sktix-logo.png" alt="SKTix logo" width="12" height="12" />
+          SKTix
+        </span>
       </div>
     </footer>
   );
