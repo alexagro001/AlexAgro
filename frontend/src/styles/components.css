@@ -1313,6 +1313,7 @@
   margin: 0;
   font-size: 0.85rem;
   text-transform: none;
+  white-space: nowrap;
 }
 
 .footer h4 {
