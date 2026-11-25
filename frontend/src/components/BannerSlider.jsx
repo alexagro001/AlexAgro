@@ -31,6 +31,124 @@ function cacheBanners(list) {
   }
 }
 
+/* ---- Text colour that follows the slide photo ---------------------------
+   Looks at the photo area where the text sits (bottom-left), then picks a
+   light shade of that colour on dark photos, or a deep shade on light
+   photos, and nudges it until it is easy to read. Any problem returns null
+   and the text keeps its normal cream colour. */
+function rgbToHsl(r, g, b) {
+  r /= 255;
+  g /= 255;
+  b /= 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  let h = 0;
+  let s = 0;
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    if (max === r) h = (g - b) / d + (g < b ? 6 : 0);
+    else if (max === g) h = (b - r) / d + 2;
+    else h = (r - g) / d + 4;
+    h *= 60;
+  }
+  return [h, s, l];
+}
+
+function hslToRgb(h, s, l) {
+  const k = (n) => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+  return [f(0) * 255, f(8) * 255, f(4) * 255];
+}
+
+function luminance(rgb) {
+  const c = rgb.map((v) => {
+    const x = v / 255;
+    return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4);
+  });
+  return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+}
+
+function contrastRatio(a, b) {
+  const x = luminance(a);
+  const y = luminance(b);
+  return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+}
+
+function pickColor(h, s, l, bg, makeDarker, minRatio) {
+  let lightness = l;
+  let rgb = hslToRgb(h, s, lightness);
+  for (let i = 0; i < 25 && contrastRatio(rgb, bg) < minRatio; i += 1) {
+    lightness = makeDarker ? Math.max(lightness - 0.03, 0.05) : Math.min(lightness + 0.03, 0.97);
+    rgb = hslToRgb(h, s, lightness);
+  }
+  return `rgb(${Math.round(rgb[0])}, ${Math.round(rgb[1])}, ${Math.round(rgb[2])})`;
+}
+
+function readTextColors(src) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      try {
+        const W = 48;
+        const H = 30;
+        const canvas = document.createElement("canvas");
+        canvas.width = W;
+        canvas.height = H;
+        const ctx = canvas.getContext("2d", { willReadFrequently: true });
+        ctx.drawImage(img, 0, 0, W, H);
+        const x1 = Math.round(W * 0.5);
+        const y0 = Math.round(H * 0.6);
+        const data = ctx.getImageData(0, y0, x1, H - y0).data;
+        let r = 0;
+        let g = 0;
+        let b = 0;
+        let count = 0;
+        for (let i = 0; i < data.length; i += 4) {
+          r += data[i];
+          g += data[i + 1];
+          b += data[i + 2];
+          count += 1;
+        }
+        if (!count) {
+          resolve(null);
+          return;
+        }
+        // The dark overlay on the slide makes the bottom about 30% darker.
+        const bg = [(r / count) * 0.7, (g / count) * 0.7, (b / count) * 0.7];
+        const [h, s0] = rgbToHsl(bg[0], bg[1], bg[2]);
+        const light = luminance(bg) > 0.4;
+        if (!light && s0 < 0.12) {
+          resolve(null);
+          return;
+        }
+        const s = Math.min(Math.max(s0, 0.35), 0.8);
+        if (light) {
+          resolve({
+            title: pickColor(h, s, 0.2, bg, true, 4.5),
+            sub: pickColor(h, s * 0.8, 0.26, bg, true, 4.5),
+            shadow: "none",
+          });
+        } else {
+          resolve({
+            title: pickColor(h, s, 0.86, bg, false, 4.5),
+            sub: pickColor(h, s * 0.6, 0.9, bg, false, 4.5),
+            shadow: undefined,
+          });
+        }
+      } catch {
+        // image from another site that blocks reading: keep the normal colour
+        resolve(null);
+      }
+    };
+    img.onerror = () => resolve(null);
+    img.src = src;
+  });
+}
+
 function SlideLink({ link, children }) {
   const target = link ? normalizeLink(link) : "";
   if (!target || target === "#") return <div className="banner-slide__hit">{children}</div>;
@@ -56,6 +174,8 @@ export default function BannerSlider() {
   // Slides whose image/video is mounted: the current one and the next, so later
   // slides don't compete with the first image for bandwidth on page load.
   const [seen, setSeen] = useState(() => new Set([0]));
+  const [textColors, setTextColors] = useState({});
+  const askedRef = useRef(new Set());
   const timerRef = useRef(null);
   const { t, n, l } = useLanguage();
 
@@ -64,6 +184,20 @@ export default function BannerSlider() {
     const next = (index + 1) % banners.length;
     setSeen((s) => (s.has(index) && s.has(next) ? s : new Set(s).add(index).add(next)));
   }, [index, banners.length]);
+
+  // Work out the text colour for each slide photo once it is mounted.
+  useEffect(() => {
+    banners.forEach((b, i) => {
+      if (!seen.has(i) || !b.image) return;
+      if (/\.(mp4|webm|ogg|mov)$/i.test(b.image)) return;
+      const key = `${b._id}|${b.image.slice(0, 200)}`;
+      if (askedRef.current.has(key)) return;
+      askedRef.current.add(key);
+      readTextColors(b.image).then((res) => {
+        setTextColors((prev) => ({ ...prev, [b._id]: res || false }));
+      });
+    });
+  }, [banners, seen]);
 
   useEffect(() => {
     const refreshBanners = async () => {
@@ -162,6 +296,7 @@ export default function BannerSlider() {
       {banners.map((b, i) => {
         const isVideo = /\.(mp4|webm|ogg|mov)$/i.test(b.image);
         const show = seen.has(i);
+        const tc = textColors[b._id] || null;
         return (
           <div
             key={b._id}
@@ -190,8 +325,24 @@ export default function BannerSlider() {
               <div className="banner-slide__scrim" />
               {(b.title || b.subtitle) && (
                 <div className="banner-slide__copy">
-                  {b.title && <h2>{l(b, "title")}</h2>}
-                  {b.subtitle && <p>{l(b, "subtitle")}</p>}
+                  {b.title && (
+                    <h2
+                      style={
+                        tc ? { color: tc.title, textShadow: tc.shadow, transition: "color 0.5s ease" } : undefined
+                      }
+                    >
+                      {l(b, "title")}
+                    </h2>
+                  )}
+                  {b.subtitle && (
+                    <p
+                      style={
+                        tc ? { color: tc.sub, textShadow: tc.shadow, transition: "color 0.5s ease" } : undefined
+                      }
+                    >
+                      {l(b, "subtitle")}
+                    </p>
+                  )}
                 </div>
               )}
             </SlideLink>
