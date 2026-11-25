@@ -323,8 +323,15 @@
 }
 
 @media (max-width: 720px) {
+    .banner-slider {
+    height: calc(56vw + 200px);
+  }
+  .banner-slider > .banner-slider__arrow {
+    top: 28vw;
+  }
   .banner-slide__img {
     object-fit: contain;
+    object-position: center top;
   }
 
   /* Keep the copy inset clear of the arrows on phones. */
