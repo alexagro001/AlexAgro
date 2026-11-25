@@ -2148,7 +2148,7 @@
 }
 
 /* Footer: মাঝারি পর্দায় Contact বক্স নিচে, লিংকের লেখা না ভাঙা */
-@media (min-width: 1025px) and (max-width: 1400px) {
+@media (min-width: 1025px) {
   .footer__contact-card {
     grid-column: 1 / -1;
   }
