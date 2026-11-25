@@ -304,7 +304,7 @@
   position: absolute;
   z-index: 3;
   left: 48px;
-  bottom: 110px;
+  bottom: 220px;
   max-width: 560px;
   color: var(--husk-cream);
 }
