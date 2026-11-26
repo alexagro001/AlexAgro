@@ -500,3 +500,26 @@
     padding: 20px 18px 22px;
   }
 }
+/* What We Do ছবি ফিক্স v4 */
+.wwd .wwd__card {
+  min-height: 570px;
+  padding-bottom: 210px;
+}
+
+.wwd .wwd__photo {
+  height: 240px;
+}
+
+.wwd .wwd__img {
+  object-position: center 55%;
+}
+
+@media (max-width: 640px) {
+  .wwd .wwd__card {
+    min-height: 540px;
+    padding-bottom: 220px;
+  }
+  .wwd .wwd__photo {
+    height: 210px;
+  }
+}
