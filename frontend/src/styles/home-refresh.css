@@ -443,3 +443,60 @@
   .op *::after { animation: none !important; transition: none !important; }
   .wwd__item { opacity: 1; transform: none; }
 }
+/* মোবাইল ফিক্স v3 */
+.home-hero__caption {
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: none;
+}
+
+@media (max-width: 959px) {
+  .home-hero__caption {
+    max-width: 68%;
+    font-size: clamp(10px, 2.6vw, 13px);
+    line-height: 1.25;
+    padding: .4em .6em;
+  }
+}
+
+@media (max-width: 640px) {
+  .wwd .wwd__grid {
+    grid-template-columns: 1fr !important;
+    width: min(420px, 100%) !important;
+  }
+  .wwd .wwd__card {
+    height: auto !important;
+    border-radius: 26px !important;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1180px) {
+  .wwd .wwd__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .op .op__card {
+    grid-template-columns: 1fr !important;
+  }
+  .op .op__media {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  .op .op__media {
+    padding: 20px;
+  }
+  .op .op__badge {
+    top: 12px;
+    left: 12px;
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+  .op .op__info {
+    padding: 20px 18px 22px;
+  }
+}
