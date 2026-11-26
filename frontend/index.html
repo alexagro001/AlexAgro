@@ -26,6 +26,62 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@500;600&family=Noto+Sans+Bengali:wght@400;500;700&family=Noto+Serif:wght@700&family=Playfair+Display:wght@600;700&family=Raleway:wght@400;800&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet" />
     <title>Alex Agro — Your Crops Friend</title>
+
+    <!-- ALEX AGRO SEO PROJECT: Head Office and Factory information correction. See the latest continuation report for project status. -->
+    <!-- Structured data: Organization + Head Office (Shahzadpur) + Factory (Baghbari Ghat). No Dhaka office, no Local Branch. -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://www.alexagro.com.bd/#organization",
+          "name": "Alex Agro",
+          "url": "https://www.alexagro.com.bd/",
+          "logo": "https://www.alexagro.com.bd/alex-agro-share.png",
+          "email": "ceo.alexagro@gmail.com",
+          "telephone": "+880 1522113291",
+          "location": [
+            { "@id": "https://www.alexagro.com.bd/#head-office" },
+            { "@id": "https://www.alexagro.com.bd/#factory" }
+          ]
+        },
+        {
+          "@type": "LocalBusiness",
+          "@id": "https://www.alexagro.com.bd/#head-office",
+          "name": "Alex Agro Head Office",
+          "url": "https://www.alexagro.com.bd/contact",
+          "parentOrganization": { "@id": "https://www.alexagro.com.bd/#organization" },
+          "image": "https://www.alexagro.com.bd/alex-agro-share.png",
+          "telephone": "+880 1522113291",
+          "email": "ceo.alexagro@gmail.com",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Shahzadpur",
+            "addressRegion": "Sirajganj",
+            "addressCountry": "BD"
+          }
+        },
+        {
+          "@type": "LocalBusiness",
+          "@id": "https://www.alexagro.com.bd/#factory",
+          "name": "Alex Agro Factory",
+          "url": "https://www.alexagro.com.bd/contact",
+          "parentOrganization": { "@id": "https://www.alexagro.com.bd/#organization" },
+          "image": "https://www.alexagro.com.bd/alex-agro-share.png",
+          "telephone": "+880 1522113291",
+          "email": "ceo.alexagro@gmail.com",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Baghbari Ghat",
+            "addressLocality": "Shahzadpur",
+            "addressRegion": "Sirajganj",
+            "addressCountry": "BD"
+          }
+        }
+      ]
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>
