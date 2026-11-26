@@ -2164,3 +2164,28 @@
     overflow-wrap: normal;
   }
 }
+/* ভাসমান বাটন মোবাইল ফিক্স */
+@media (max-width: 640px) {
+  .floating-contact {
+    top: auto;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    right: 10px;
+  }
+  .floating-contact__branch,
+  .floating-contact__thread,
+  .floating-contact__badge {
+    display: none;
+  }
+  .floating-contact__widget {
+    animation: none;
+  }
+  .floating-contact__cta {
+    margin-top: 0;
+    padding: 10px 16px;
+    font-size: 0.78rem;
+    box-shadow: 0 4px 12px rgba(226, 163, 53, 0.35);
+  }
+  .footer__bottom {
+    padding-bottom: 84px;
+  }
+}
