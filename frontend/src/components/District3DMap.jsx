@@ -61,7 +61,7 @@ function buildGeometry(geo) {
         const pts = poly[r].map(([lon, lat]) => project(lon, lat));
         d += "M" + pts.map((p) => p[0].toFixed(1) + "," + p[1].toFixed(1)).join("L") + "Z";
         if (r === 0) {
-          // area + centroid of the outer ring (largest ring gets the label)
+          // area + centroid of the outer ring (largest ring wins)
           let a = 0, cx = 0, cy = 0;
           for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
             const cross = pts[j][0] * pts[i][1] - pts[i][0] * pts[j][1];
@@ -87,30 +87,52 @@ function buildGeometry(geo) {
       color: colorFor(division),
     });
   }
-  return { districts, viewW, viewH, project };
+
+  // Per-division data: area-weighted middle point + its districts.
+  // (The label spot is picked later, so it can avoid the dealer-count pins.)
+  const byDiv = new Map();
+  for (const dist of districts) {
+    if (!dist.centroid) continue;
+    const e = byDiv.get(dist.division) || { sx: 0, sy: 0, w: 0, items: [] };
+    e.sx += dist.centroid[0] * dist.area;
+    e.sy += dist.centroid[1] * dist.area;
+    e.w += dist.area;
+    e.items.push(dist);
+    byDiv.set(dist.division, e);
+  }
+  const divisions = [];
+  for (const [name, e] of byDiv) {
+    if (!e.w) continue;
+    divisions.push({ name, cx: e.sx / e.w, cy: e.sy / e.w, items: e.items });
+  }
+
+  return { districts, divisions, viewW, viewH, project };
 }
 
 /**
  * 2D SVG map of Bangladesh's 64 districts (replaces the Three.js version).
- * Hover highlights, click selects and calls onDistrictSelect({ name, division }).
+ * Only the 8 division names are drawn on the map; district names show on
+ * hover (tooltip) and for the selected district. Click / tap selects a
+ * district and calls onDistrictSelect({ name, division }).
  */
 export default function District3DMap({
   height = 480,
   onDistrictSelect,
-  counts = {},
+  counts,
   highlightDistrict,
   markerLat,
   markerLng,
   markerName,
 }) {
   const { t, n } = useLanguage();
+  const safeCounts = counts || {};
   const stageRef = useRef(null);
   const tipRef = useRef(null);
   const [geom, setGeom] = useState(null);
   const [status, setStatus] = useState("loading");
   const [hoveredId, setHoveredId] = useState(null);
   const [selectedId, setSelectedId] = useState(null);
-  const [size, setSize] = useState({ w: 600, h: height });
+  const [size, setSize] = useState({ w: 600, h: typeof height === "number" ? height : 480 });
 
   // Load the district boundaries once
   useEffect(() => {
@@ -178,13 +200,28 @@ export default function District3DMap({
   }, [geom, markerPoint, highlightDistrict]);
 
   // How many screen pixels one SVG unit is. u(px) converts a wanted
-  // on-screen size (in px) into SVG units, so text and pins always stay readable.
+  // on-screen size (in px) into SVG units, so text and pins stay readable.
   const scale = Math.max(Math.min(size.w / vb.w, size.h / vb.h), 0.01);
   const u = (px) => px / scale;
 
-  const zoomed = geom ? vb.w < geom.viewW - 0.5 : false;
-  const baseThreshold = size.w < 520 ? 3000 : size.w < 800 ? 2000 : 500;
-  const minLabelArea = zoomed ? baseThreshold / 4 : baseThreshold;
+  // Division name positions: inside the division, nearest to its middle,
+  // and (when possible) in a district that has no dealer-count pin.
+  const divisionLabels = geom
+    ? geom.divisions.map((dv) => {
+        const free = dv.items.filter((it) => typeof safeCounts[it.name] !== "number");
+        const pool = free.length ? free : dv.items;
+        let best = pool[0];
+        let bestDist = Infinity;
+        for (const it of pool) {
+          const dd = (it.centroid[0] - dv.cx) ** 2 + (it.centroid[1] - dv.cy) ** 2;
+          if (dd < bestDist) {
+            bestDist = dd;
+            best = it;
+          }
+        }
+        return { name: dv.name, pos: best.centroid };
+      })
+    : [];
 
   function moveTip(e) {
     const rect = stageRef.current?.getBoundingClientRect();
@@ -204,7 +241,9 @@ export default function District3DMap({
   }
 
   const hovered = geom?.districts.find((x) => x.id === hoveredId) || null;
+  const selected = geom?.districts.find((x) => x.id === selectedId) || null;
   const outlineIds = [...new Set([selectedId, hoveredId].filter(Boolean))];
+  const divFont = size.w < 520 ? 12 : 14;
 
   return (
     <div className="district3d" style={{ height }}>
@@ -213,7 +252,15 @@ export default function District3DMap({
           <svg
             viewBox={`${vb.x} ${vb.y} ${vb.w} ${vb.h}`}
             preserveAspectRatio="xMidYMid meet"
-            style={{ width: "100%", height: "100%", display: "block" }}
+            style={{
+              width: "100%",
+              height: "100%",
+              display: "block",
+              WebkitTapHighlightColor: "transparent",
+              WebkitUserSelect: "none",
+              userSelect: "none",
+              outline: "none",
+            }}
             role="img"
             aria-label={t("Bangladesh district map")}
             onPointerLeave={() => setHoveredId(null)}
@@ -226,12 +273,9 @@ export default function District3DMap({
                 fillRule="evenodd"
                 fill={dist.id === selectedId ? SELECTED_COLOR : dist.color}
                 stroke="#ffffff"
-                strokeWidth={u(1)}
+                strokeWidth={u(0.8)}
                 strokeLinejoin="round"
-                style={{
-                  cursor: "pointer",
-                  filter: dist.id === hoveredId ? "brightness(1.18)" : "none",
-                }}
+                style={{ cursor: "pointer" }}
                 onPointerEnter={(e) => {
                   setHoveredId(dist.id);
                   moveTip(e);
@@ -241,14 +285,15 @@ export default function District3DMap({
               />
             ))}
 
-            {/* Thick white outline on top for hovered / selected districts */}
+            {/* Highlight on top: light veil + thick white outline for hovered / selected */}
             {outlineIds.map((id) => {
               const dist = geom.districts.find((x) => x.id === id);
               return dist ? (
                 <path
                   key={`o-${id}`}
                   d={dist.d}
-                  fill="none"
+                  fillRule="evenodd"
+                  fill={id === hoveredId && id !== selectedId ? "rgba(255,255,255,0.22)" : "none"}
                   stroke="#ffffff"
                   strokeWidth={u(2.4)}
                   strokeLinejoin="round"
@@ -257,32 +302,47 @@ export default function District3DMap({
               ) : null;
             })}
 
-            {/* District names (only the larger districts) */}
-            {geom.districts.map(
-              (dist) =>
-                dist.centroid &&
-                dist.area >= minLabelArea && (
-                  <text
-                    key={`l-${dist.id}`}
-                    x={dist.centroid[0]}
-                    y={dist.centroid[1] + u(24)}
-                    textAnchor="middle"
-                    fontSize={u(11)}
-                    fontWeight="600"
-                    fill="#fff"
-                    stroke="rgba(0,0,0,.5)"
-                    strokeWidth={u(3)}
-                    paintOrder="stroke"
-                    pointerEvents="none"
-                  >
-                    {t(dist.name)}
-                  </text>
-                )
+            {/* The 8 division names */}
+            {divisionLabels.map((dv) => (
+              <text
+                key={`dv-${dv.name}`}
+                x={dv.pos[0]}
+                y={dv.pos[1]}
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fontSize={u(divFont)}
+                fontWeight="800"
+                fill="#fff"
+                stroke="rgba(0,0,0,.6)"
+                strokeWidth={u(3.5)}
+                paintOrder="stroke"
+                pointerEvents="none"
+              >
+                {t(dv.name)}
+              </text>
+            ))}
+
+            {/* Name of the selected district only */}
+            {selected && selected.centroid && (
+              <text
+                x={selected.centroid[0]}
+                y={selected.centroid[1] + u(22)}
+                textAnchor="middle"
+                fontSize={u(11)}
+                fontWeight="600"
+                fill="#fff"
+                stroke="rgba(0,0,0,.55)"
+                strokeWidth={u(3)}
+                paintOrder="stroke"
+                pointerEvents="none"
+              >
+                {t(selected.name)}
+              </text>
             )}
 
             {/* Dealer-count pins */}
             {geom.districts.map((dist) => {
-              const count = counts[dist.name];
+              const count = safeCounts[dist.name];
               if (typeof count !== "number" || !dist.centroid) return null;
               return (
                 <g
