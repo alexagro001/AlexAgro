@@ -282,24 +282,27 @@ router.put("/change-password", requireAuth, async (req, res) => {
 });
 
 // POST /api/auth/forgot-password -> "Forgot password?" step 1: emails a reset code.
-// The answer is the same whether or not the username exists.
+// Only the registered admin email gets a code. The answer is the same whether
+// or not the email matches, so nobody can find out which email is registered.
 router.post("/forgot-password", resetLimiter, async (req, res) => {
   try {
-    const { username } = req.body;
-    if (!username) {
-      return res.status(400).json({ message: "Username is required" });
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
     }
 
-    const name = String(username).trim().toLowerCase();
+    const typedEmail = String(email).trim().toLowerCase();
+    const message = "If that email is registered, a reset code has been sent to it.";
+
     let admin = null;
     if (req.app.locals.demoAuthEnabled) {
-      if (name === req.app.locals.demoAdmin.username) admin = req.app.locals.demoAdmin;
+      admin = req.app.locals.demoAdmin;
     } else {
-      admin = await Admin.findOne({ username: name });
+      admin = await Admin.findOne({ username: String(adminAccess.username).trim().toLowerCase() });
     }
 
-    const message = "If that account exists, a reset code has been emailed to the admin address.";
-    if (!admin) {
+    const registeredEmail = admin ? String(codeEmailFor(admin)).trim().toLowerCase() : "";
+    if (!admin || !registeredEmail || typedEmail !== registeredEmail) {
       return res.json({ message, challengeId: crypto.randomBytes(16).toString("hex") });
     }
 
@@ -320,7 +323,6 @@ router.post("/forgot-password", resetLimiter, async (req, res) => {
     res.status(500).json({ message: "Could not start the password reset", error: err.message });
   }
 });
-
 // POST /api/auth/reset-password -> "Forgot password?" step 2: the emailed code
 // proves ownership, then the new password is saved.
 router.post("/reset-password", codeLimiter, async (req, res) => {
