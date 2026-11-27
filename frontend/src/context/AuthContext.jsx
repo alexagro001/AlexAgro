@@ -3,15 +3,30 @@ import api from "../api/axios";
 
 const AuthContext = createContext(null);
 
-export function AuthProvider({ children }) {
-  const [admin, setAdmin] = useState(() => {
-    const saved = localStorage.getItem("alexagro_admin_profile");
+// Old versions saved the login in localStorage (stays after closing the tab).
+// Remove it once, so nobody stays logged in from the old way.
+try {
+  localStorage.removeItem("alexagro_admin_token");
+  localStorage.removeItem("alexagro_admin_profile");
+} catch (e) {
+  // ignore
+}
+
+function readProfile() {
+  try {
+    const saved = sessionStorage.getItem("alexagro_admin_profile");
     return saved ? JSON.parse(saved) : null;
-  });
+  } catch (e) {
+    return null;
+  }
+}
+
+export function AuthProvider({ children }) {
+  const [admin, setAdmin] = useState(readProfile);
 
   const saveSession = useCallback((data) => {
-    localStorage.setItem("alexagro_admin_token", data.token);
-    localStorage.setItem("alexagro_admin_profile", JSON.stringify(data.admin));
+    sessionStorage.setItem("alexagro_admin_token", data.token);
+    sessionStorage.setItem("alexagro_admin_profile", JSON.stringify(data.admin));
     setAdmin(data.admin);
   }, []);
 
@@ -38,6 +53,8 @@ export function AuthProvider({ children }) {
   );
 
   const logout = useCallback(() => {
+    sessionStorage.removeItem("alexagro_admin_token");
+    sessionStorage.removeItem("alexagro_admin_profile");
     localStorage.removeItem("alexagro_admin_token");
     localStorage.removeItem("alexagro_admin_profile");
     setAdmin(null);
